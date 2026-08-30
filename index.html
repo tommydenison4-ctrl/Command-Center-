@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ULM Football Intelligence Command Center</title>
+<style>
+:root{--maroon:#8A2432;--maroon2:#b43a4d;--gold:#EBA800;--ink:#030b11;--panel:#081923;--panel2:#0c2430;--line:#294451;--muted:#91a9b7;--white:#f8fbfd;--cyan:#4db9dd;--green:#3dd28b}
+*{box-sizing:border-box}html{background:var(--ink)}
+body{margin:0;min-height:100vh;color:var(--white);font-family:Inter,Arial,Helvetica,sans-serif;background:#030b11;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-5;background:radial-gradient(circle at 12% 0%,rgba(138,36,50,.40),transparent 29%),radial-gradient(circle at 92% 4%,rgba(235,168,0,.09),transparent 22%),linear-gradient(145deg,#02080d,#06151e 58%,#031019)}
+body:after{content:"";position:fixed;inset:0;z-index:-4;opacity:.15;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:38px 38px}
+header{position:sticky;top:0;z-index:30;background:rgba(3,11,17,.90);backdrop-filter:blur(18px);border-bottom:1px solid rgba(235,168,0,.55)}
+.head{max-width:1540px;margin:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:14px}.roundel{width:60px;height:60px;border-radius:50%;background:var(--maroon);position:relative;display:grid;place-items:center;border:1px solid rgba(255,255,255,.18);box-shadow:0 0 0 4px rgba(138,36,50,.12)}.star{font-size:48px;color:#fff;line-height:1;transform:translateY(-1px)}.dot{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--gold);box-shadow:0 0 15px rgba(235,168,0,.5)}
+.kicker{font-size:9px;font-weight:950;letter-spacing:.18em;color:var(--gold)}h1{font-size:24px;margin:4px 0 0;letter-spacing:-.025em}.sub{font-size:10px;color:var(--muted);margin-top:4px}
+.headTools{display:flex;gap:9px;align-items:center}.search{width:320px;max-width:38vw;padding:10px 12px;border:1px solid #304956;border-radius:10px;background:#071720;color:#fff;outline:none}.search:focus{border-color:var(--gold)}.clock{font-size:10px;color:#b8c7cf;border:1px solid #2b414e;border-radius:10px;background:#071720;padding:10px 12px;white-space:nowrap}
+main{max-width:1540px;margin:auto;padding:26px 22px 65px}
+.heroBar{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:0 2px 18px;padding:0 2px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.heroBar h2{font-size:34px;line-height:1.03;margin:6px 0 8px;letter-spacing:-.045em;max-width:760px}.heroBar p{font-size:12px;line-height:1.55;color:#b4c5cf;max-width:820px;margin:0}.heroMetrics{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.heroMetrics span{border:1px solid #34515f;border-radius:999px;padding:8px 11px;font-size:9px;font-weight:900;color:#d5e1e7;background:#081b26}
+.sectionTitle{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:28px 2px 12px}.sectionTitle h2{font-size:20px;margin:0}.sectionTitle p{font-size:10px;color:var(--muted);margin:4px 0 0}.sectionTitle .line{height:1px;flex:1;background:linear-gradient(90deg,#294451,transparent);margin:0 15px 5px}
+.searchRow{display:flex;gap:8px;align-items:center}.filterBtn{border:1px solid #304956;background:#071720;color:#a9bbc5;border-radius:999px;padding:7px 10px;font-size:9px;font-weight:900;cursor:pointer}.filterBtn.active,.filterBtn:hover{background:var(--maroon);border-color:#a33b49;color:white}
+.moduleGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.moduleCard{position:relative;overflow:hidden;border:1px solid #294451;border-radius:18px;background:linear-gradient(145deg,#0c2330,#061720);padding:17px;min-height:385px;display:flex;flex-direction:column;transition:.2s ease;animation:rise .45s both;animation-delay:calc(var(--i)*50ms)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.moduleCard:hover{transform:translateY(-4px);border-color:#587481;box-shadow:0 23px 46px rgba(0,0,0,.25)}
+.moduleCard:before{content:"";position:absolute;inset:auto -70px -80px auto;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(235,168,0,.11),transparent 67%);pointer-events:none}
+.moduleHead{display:flex;justify-content:space-between;gap:10px}.moduleTag{font-size:8px;color:var(--gold);font-weight:950;letter-spacing:.14em}.moduleHead h3{font-size:17px;margin:5px 0 0}.room{font-size:8px;color:#7f96a4;text-align:right;white-space:nowrap}
+.viz{height:140px;border:1px solid #203a47;background:#04131b;border-radius:12px;margin:14px 0 12px;overflow:hidden;position:relative}.viz svg{width:100%;height:100%;display:block}.moduleHeadline{font-size:14px;font-weight:950;color:#eef5f8;margin-bottom:6px}.moduleCard p{font-size:10.5px;color:#9fb2bd;line-height:1.45;margin:0 0 12px}
+.purposeStrip{display:flex;gap:5px;flex-wrap:wrap}.purposeStrip span{font-size:8px;border:1px solid #2c4654;border-radius:999px;padding:5px 7px;color:#c6d4dc;background:#071923}
+.moduleFoot{margin-top:auto;border-top:1px solid rgba(255,255,255,.07);padding-top:12px;display:flex;align-items:center;justify-content:space-between}.status{font-size:8px;color:#8299a6;font-weight:900;letter-spacing:.08em}.status i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#35d49a;margin-right:5px;box-shadow:0 0 9px rgba(53,212,154,.4)}.moduleFoot a{text-decoration:none;color:white;background:var(--maroon);border:1px solid #a43b49;border-radius:9px;padding:9px 11px;font-size:10px;font-weight:900;letter-spacing:.08em}
+.futureGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.futureCard{position:relative;overflow:hidden;border:1px dashed #536c79;border-radius:19px;background:linear-gradient(145deg,rgba(10,25,34,.82),rgba(5,15,22,.82));padding:19px;min-height:250px}.futureCard:before{content:"";position:absolute;right:-110px;top:-130px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(235,168,0,.10),transparent 65%)}.futureCard.liveFuture:before{background:radial-gradient(circle,rgba(138,36,50,.24),transparent 65%)}
+.futureHead{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.futureTag{font-size:9px;color:var(--gold);font-weight:950;letter-spacing:.14em}.futureHead h3{font-size:23px;margin:5px 0 0}.planned{font-size:8px;font-weight:950;letter-spacing:.1em;border:1px solid #6d5560;border-radius:999px;padding:6px 8px;color:#ffd478;background:#271a14}.futureCard p{font-size:11px;line-height:1.48;color:#aabdc8;max-width:620px}
+.futureViz{height:115px;margin:10px 0 9px;border-radius:13px;background:#04131c;border:1px solid #1f3845;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:6px}.futureViz svg{width:100%;height:100%;display:block}.futureSteps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.futureSteps span{font-size:8px;border:1px solid #2d4654;border-radius:8px;background:#071923;color:#b7c7cf;padding:7px;text-align:center;font-weight:800}
+.fieldMark,.gridMini,.losMini{fill:none;stroke:#40545e;stroke-width:1;opacity:.6}.gridMini{stroke-dasharray:3 5}.goldPath,.maroonPath,.bluePath,.greenPath,.whitePath{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.goldPath{stroke:var(--gold)}.maroonPath{stroke:#c24b5b}.bluePath{stroke:var(--cyan)}.greenPath{stroke:var(--green)}.whitePath{stroke:#f7fbff;stroke-width:2.6}.node{fill:#fff;stroke:var(--gold);stroke-width:2}.teamNode{fill:#f1f5f7;stroke:#d8e3ea;stroke-width:1.8}.oppNode{fill:#192e39;stroke:#7e97a5;stroke-width:2}.conflict{fill:rgba(235,168,0,.15);stroke:var(--gold);stroke-width:2;stroke-dasharray:3 2}.blockNode{fill:#f0f4f5;stroke:#d6dee2;stroke-width:1.5}.ball{fill:var(--gold)}.boxZone{fill:rgba(235,168,0,.08);stroke:#7b5d11;stroke-width:1.5;stroke-dasharray:5 4}.svgLabel{fill:#8ea5b2;font-size:11px;font-weight:700;letter-spacing:.08em}.pulsePath{filter:drop-shadow(0 0 7px rgba(235,168,0,.4))}
+.hidden{display:none!important}
+footer{margin-top:25px;border-top:1px solid rgba(255,255,255,.08);padding:17px 2px 0;display:flex;justify-content:space-between;color:#657d8b;font-size:9px}
+@media(max-width:1100px){.moduleGrid{grid-template-columns:repeat(2,1fr)}.futureGrid{grid-template-columns:1fr}.heroBar{flex-direction:column;align-items:flex-start}.heroMetrics{justify-content:flex-start}}
+@media(max-width:700px){.head{align-items:flex-start;flex-direction:column}.headTools,.search{width:100%;max-width:none}.clock{display:none}main{padding:18px 13px 50px}.heroBar h2{font-size:30px}.moduleGrid{grid-template-columns:1fr}.sectionTitle{align-items:flex-start;flex-direction:column}.sectionTitle .line{display:none}.futureSteps{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="head">
+  <div class="brand"><div class="roundel"><div class="star">★</div><div class="dot"></div></div><div><div class="kicker">ULM FOOTBALL</div><h1>Football Intelligence Command Center</h1><div class="sub">One staff hub • purpose-built tools for each football problem</div></div></div>
+  <div class="headTools"><input id="search" class="search" placeholder="Find an app, unit or football problem..."><div id="clock" class="clock">—</div></div>
+</div></header>
+
+<main>
+<div class="sectionTitle"><div><div class="kicker">LIVE STAFF TOOLS</div><h2>Purpose-Built Football Apps</h2><p>Each app owns a specific football problem.</p></div><div class="line"></div><div class="searchRow"><button class="filterBtn active" data-filter="all">ALL</button><button class="filterBtn" data-filter="offense">OFFENSE</button><button class="filterBtn" data-filter="defense">DEFENSE</button><button class="filterBtn" data-filter="special teams">ST</button><button class="filterBtn" data-filter="ol rb qb">POSITION</button></div></div>
+
+<section id="moduleGrid" class="moduleGrid">
+  <article class="moduleCard" style="--i:0" data-name="special teams intelligence special teams own the hidden yardage phase coverage return player intelligence shared look library">
+    <div class="moduleHead"><div><div class="moduleTag">SPECIAL TEAMS</div><h3>Special Teams Intelligence</h3></div><div class="room">Tony / BV / Tommy</div></div>
+    <div class="viz"><svg viewBox="0 0 240 140" aria-hidden="true"><rect x="14" y="14" width="212" height="110" rx="10" fill="none" stroke="#294451"/><path class="fieldMark" d="M22 34H218M22 56H218M22 78H218M22 100H218"/><path class="losMini" d="M22 88H218"/><circle class="ball" cx="120" cy="88" r="4"/><circle class="teamNode" cx="32" cy="88" r="6"/><circle class="teamNode" cx="76" cy="88" r="6"/><circle class="teamNode" cx="90" cy="88" r="6"/><circle class="teamNode" cx="104" cy="88" r="6"/><circle class="teamNode" cx="120" cy="88" r="6"/><circle class="teamNode" cx="136" cy="88" r="6"/><circle class="teamNode" cx="150" cy="88" r="6"/><circle class="teamNode" cx="164" cy="88" r="6"/><circle class="teamNode" cx="208" cy="88" r="6"/><circle class="teamNode" cx="100" cy="104" r="6"/><circle class="teamNode" cx="140" cy="104" r="6"/><circle class="teamNode" cx="120" cy="118" r="6"/><path class="whitePath" d="M120 114 Q121 74 120 28"/><path class="goldPath" d="M32 86 Q30 55 44 24"/><path class="goldPath" d="M208 86 Q210 55 196 24"/><path class="maroonPath" d="M100 101 Q92 72 78 42"/><path class="maroonPath" d="M140 101 Q148 72 162 42"/></svg></div>
+    <div class="moduleHeadline">Own the hidden-yardage phase.</div>
+    <p>Chart coverage lanes, return structure, player production and weekly special-teams tendencies.</p>
+    <div class="purposeStrip"><span>Coverage + Return</span><span>Player Intelligence</span><span>Shared Look Library</span></div>
+    <div class="moduleFoot"><div class="status"><i></i>LIVE APP</div><a href="https://special-teams-analytics.vercel.app" target="_blank" rel="noopener">ENTER <b>↗</b></a></div>
+  </article>
+
+  <article class="moduleCard" style="--i:1" data-name="offensive intelligence offense find where the advantage lives formation intelligence situational splits player profiles">
+    <div class="moduleHead"><div><div class="moduleTag">OFFENSE</div><h3>Offensive Intelligence</h3></div><div class="room">Offensive Staff</div></div>
+    <div class="viz"><svg viewBox="0 0 240 140" aria-hidden="true"><rect x="14" y="14" width="212" height="110" rx="10" fill="none" stroke="#294451"/><path class="fieldMark" d="M22 56H218M22 88H218"/><path class="losMini" d="M22 92H218"/><circle class="ball" cx="120" cy="92" r="4"/><circle class="teamNode" cx="88" cy="92" r="6"/><circle class="teamNode" cx="104" cy="92" r="6"/><circle class="teamNode" cx="120" cy="92" r="6"/><circle class="teamNode" cx="136" cy="92" r="6"/><circle class="teamNode" cx="152" cy="92" r="6"/><circle class="teamNode" cx="40" cy="90" r="6"/><circle class="teamNode" cx="176" cy="90" r="6"/><circle class="teamNode" cx="198" cy="90" r="6"/><circle class="teamNode" cx="176" cy="66" r="6"/><circle class="teamNode" cx="160" cy="52" r="6"/><circle class="teamNode" cx="120" cy="108" r="6"/><circle class="teamNode" cx="96" cy="116" r="6"/><path class="goldPath" d="M40 88 Q30 62 56 32"/><path class="goldPath" d="M198 88 Q208 56 188 30"/><path class="maroonPath" d="M176 88 Q174 58 176 28"/><path class="bluePath" d="M160 49 Q165 74 183 88"/><path class="greenPath" d="M96 112 Q113 104 138 92"/></svg></div>
+    <div class="moduleHeadline">Find where the advantage lives.</div>
+    <p>Formation, personnel, situation and player intelligence built around how the offense can create stress.</p>
+    <div class="purposeStrip"><span>Formation Intelligence</span><span>Situational Splits</span><span>Player Profiles</span></div>
+    <div class="moduleFoot"><div class="status"><i></i>LIVE APP</div><a href="https://offensive-intelligence-platform.vercel.app" target="_blank" rel="noopener">ENTER <b>↗</b></a></div>
+  </article>
+
+  <article class="moduleCard" style="--i:2" data-name="defensive intelligence defense know what the opponent is trying to become personnel formation coverage response pressure">
+    <div class="moduleHead"><div><div class="moduleTag">DEFENSE</div><h3>Defensive Intelligence</h3></div><div class="room">Defensive Staff</div></div>
+    <div class="viz"><svg viewBox="0 0 240 140" aria-hidden="true"><rect x="14" y="14" width="212" height="110" rx="10" fill="none" stroke="#294451"/><path class="fieldMark" d="M22 54H218M22 88H218"/><path class="losMini" d="M22 92H218"/><circle class="oppNode" cx="88" cy="92" r="6"/><circle class="oppNode" cx="104" cy="92" r="6"/><circle class="oppNode" cx="120" cy="92" r="6"/><circle class="oppNode" cx="136" cy="92" r="6"/><circle class="oppNode" cx="152" cy="92" r="6"/><circle class="oppNode" cx="40" cy="90" r="6"/><circle class="oppNode" cx="176" cy="90" r="6"/><circle class="oppNode" cx="198" cy="90" r="6"/><circle class="oppNode" cx="176" cy="66" r="6"/><circle class="oppNode" cx="120" cy="108" r="6"/><circle class="oppNode" cx="96" cy="116" r="6"/><circle class="teamNode" cx="90" cy="72" r="6"/><circle class="teamNode" cx="110" cy="74" r="6"/><circle class="teamNode" cx="130" cy="74" r="6"/><circle class="teamNode" cx="150" cy="72" r="6"/><circle class="teamNode" cx="76" cy="56" r="6"/><circle class="teamNode" cx="164" cy="56" r="6"/><circle class="teamNode" cx="40" cy="62" r="6"/><circle class="teamNode" cx="200" cy="62" r="6"/><circle class="teamNode" cx="82" cy="30" r="6"/><circle class="teamNode" cx="158" cy="30" r="6"/><circle class="teamNode" cx="120" cy="48" r="6"/><path class="maroonPath" d="M40 59 Q54 42 76 35"/><path class="goldPath" d="M200 59 Q186 42 164 35"/><path class="bluePath" d="M120 45 V28"/></svg></div>
+    <div class="moduleHeadline">Know what the opponent is trying to become.</div>
+    <p>Personnel, formations, coverage response and pressure intelligence for opponent offense.</p>
+    <div class="purposeStrip"><span>Personnel + Formation</span><span>Coverage Response</span><span>Pressure</span></div>
+    <div class="moduleFoot"><div class="status"><i></i>LIVE APP</div><a href="https://ulm-defensive-intelligence.vercel.app" target="_blank" rel="noopener">ENTER <b>↗</b></a></div>
+  </article>
+
+  <article class="moduleCard" style="--i:3" data-name="o-line weekly scout offensive line see the front before the snap front structure pressure down distance">
+    <div class="moduleHead"><div><div class="moduleTag">OFFENSIVE LINE</div><h3>O-Line Weekly Scout</h3></div><div class="room">Cam / OL Room</div></div>
+    <div class="viz"><svg viewBox="0 0 240 118" aria-hidden="true"><path class="losMini" d="M22 60H218"/><rect class="blockNode" x="48" y="72" width="20" height="15" rx="4"/><rect class="blockNode" x="78" y="72" width="20" height="15" rx="4"/><rect class="blockNode" x="108" y="72" width="20" height="15" rx="4"/><rect class="blockNode" x="138" y="72" width="20" height="15" rx="4"/><rect class="blockNode" x="168" y="72" width="20" height="15" rx="4"/><circle class="oppNode" cx="67" cy="46" r="6"/><circle class="oppNode" cx="118" cy="43" r="6"/><circle class="oppNode" cx="170" cy="46" r="6"/><path class="goldPath" d="M58 70 Q62 54 67 50"/><path class="goldPath" d="M118 70V49"/><path class="goldPath" d="M178 70 Q175 55 170 51"/></svg></div>
+    <div class="moduleHeadline">See the front before the snap.</div>
+    <p>Cam's weekly view of fronts, pressures, down-and-distance and box structure.</p>
+    <div class="purposeStrip"><span>Front Structure</span><span>Pressure</span><span>Down + Distance</span></div>
+    <div class="moduleFoot"><div class="status"><i></i>LIVE APP</div><a href="https://ol-weekly-scouting-app.vercel.app" target="_blank" rel="noopener">ENTER <b>↗</b></a></div>
+  </article>
+
+  <article class="moduleCard" style="--i:4" data-name="rb weekly scout running backs turn box structure into an rb plan lb matchups personnel pressure">
+    <div class="moduleHead"><div><div class="moduleTag">RUNNING BACKS</div><h3>RB Weekly Scout</h3></div><div class="room">Shawn / RB Room</div></div>
+    <div class="viz"><svg viewBox="0 0 240 118" aria-hidden="true"><path class="losMini" d="M22 58H218"/><rect class="boxZone" x="67" y="22" width="106" height="68" rx="12"/><circle class="oppNode" cx="90" cy="42" r="6"/><circle class="oppNode" cx="150" cy="42" r="6"/><circle class="node" cx="120" cy="90" r="7"/><path class="goldPath" d="M120 83 Q120 64 105 50"/><path class="maroonPath" d="M120 83 Q137 66 150 49"/><path class="bluePath" d="M120 83 Q92 72 76 58"/></svg></div>
+    <div class="moduleHeadline">Turn box structure into an RB plan.</div>
+    <p>Personnel, linebacker matchups, pressure and run-game context for the RB room.</p>
+    <div class="purposeStrip"><span>LB Matchups</span><span>Personnel</span><span>Pressure</span></div>
+    <div class="moduleFoot"><div class="status"><i></i>LIVE APP</div><a href="https://rb-weekly-scout-app.vercel.app" target="_blank" rel="noopener">ENTER <b>↗</b></a></div>
+  </article>
+
+  <article class="moduleCard" style="--i:5" data-name="qb recognition game quarterbacks train the eyes before game day conflict defenders timed recognition group mode">
+    <div class="moduleHead"><div><div class="moduleTag">QUARTERBACKS</div><h3>QB Recognition Game</h3></div><div class="room">QB Room</div></div>
+    <div class="viz"><svg viewBox="0 0 240 118" aria-hidden="true"><path class="losMini" d="M22 76H218"/><circle class="node" cx="120" cy="94" r="7"/><circle class="oppNode" cx="64" cy="45" r="6"/><circle class="oppNode" cx="120" cy="38" r="6"/><circle class="oppNode" cx="176" cy="45" r="6"/><circle class="conflict" cx="88" cy="58" r="10"/><circle class="conflict" cx="152" cy="58" r="10"/><path class="goldPath" d="M120 87 Q107 72 91 64"/><path class="goldPath" d="M120 87 Q136 73 149 64"/></svg></div>
+    <div class="moduleHeadline">Train the eyes before game day.</div>
+    <p>Timed pre-snap recognition and conflict-defender identification for the quarterback room.</p>
+    <div class="purposeStrip"><span>Conflict Defenders</span><span>Timed Recognition</span><span>Group Mode</span></div>
+    <div class="moduleFoot"><div class="status"><i></i>LIVE APP</div><a href="https://qb-recognition-game-app.vercel.app" target="_blank" rel="noopener">ENTER <b>↗</b></a></div>
+  </article>
+</section>
+
+<div class="sectionTitle"><div><div class="kicker">NEXT BUILDS</div><h2>Planned Command Modules</h2><p>These are the next layers to build. No live page attached yet.</p></div><div class="line"></div></div>
+<section class="futureGrid">
+ <article class="futureCard liveFuture">
+   <div class="futureHead"><div><div class="futureTag">GAME DAY</div><h3>Live Game Analytics</h3></div><div class="planned">PLANNED</div></div>
+   <p>A live sideline/booth view built around the metrics you actually care about: YPP, median YPP, explosive %, negative-play %, field position, advantage rate, coverage/pressure response and special-teams outcomes.</p>
+   <div class="futureViz"><svg viewBox="0 0 240 118"><path class="fieldMark" d="M18 22H222M18 59H222M18 96H222"/><path class="goldPath pulsePath" d="M22 89 L55 75 L84 81 L116 45 L148 54 L178 26 L218 34"/><circle class="node" cx="55" cy="75" r="4"/><circle class="node" cx="116" cy="45" r="4"/><circle class="node" cx="178" cy="26" r="4"/><text x="20" y="17" class="svgLabel">LIVE DRIVE SIGNAL</text></svg></div>
+   <div class="futureSteps"><span>DRIVE-BY-DRIVE SIGNAL</span><span>OFF / DEF / ST TOGETHER</span><span>HALFTIME DECISION VIEW</span></div>
+ </article>
+ <article class="futureCard">
+   <div class="futureHead"><div><div class="futureTag">SELF SCOUT</div><h3>Self-Scout Intelligence</h3></div><div class="planned">PLANNED</div></div>
+   <p>A rolling audit of what ULM is becoming on film. Compare last 1, 3 and 5 games to the season, expose formation/personnel tendencies, and show where explosives, negatives and efficiency are drifting.</p>
+   <div class="futureViz"><svg viewBox="0 0 240 118"><path class="gridMini" d="M25 25H215M25 55H215M25 85H215M60 15V100M105 15V100M150 15V100M195 15V100"/><path class="maroonPath" d="M26 82 L60 72 L105 79 L150 43 L195 48"/><path class="goldPath" d="M26 68 L60 64 L105 53 L150 58 L195 31"/><circle class="node" cx="195" cy="31" r="5"/><text x="20" y="108" class="svgLabel">1 • 3 • 5 GAME TRENDS</text></svg></div>
+   <div class="futureSteps"><span>1 / 3 / 5 GAME WINDOWS</span><span>TENDENCY FLAGS</span><span>ADVANTAGE + EFFICIENCY</span></div>
+ </article>
+</section>
+
+<footer><span>ULM Football Intelligence • Internal Staff Command Center</span><span>Scouting → Teaching → Game Day → Self Scout</span></footer>
+</main>
+<script>
+const search=document.getElementById('search');let activeFilter='all';
+function applyFilters(){const q=search.value.trim().toLowerCase();document.querySelectorAll('.moduleCard').forEach(c=>{const n=c.dataset.name||'';const qok=!q||n.includes(q);let fok=true;if(activeFilter!=='all'){fok=activeFilter==='ol rb qb'?/(ol|rb|qb|offensive line|running backs|quarterbacks)/.test(n):n.includes(activeFilter)}c.classList.toggle('hidden',!(qok&&fok))})}
+search.addEventListener('input',applyFilters);document.querySelectorAll('.filterBtn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filterBtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeFilter=b.dataset.filter;applyFilters()}));
+function tick(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+' • '+d.toLocaleDateString([],{month:'short',day:'numeric'})}tick();setInterval(tick,30000);
+</script>
+</body>
+</html>
