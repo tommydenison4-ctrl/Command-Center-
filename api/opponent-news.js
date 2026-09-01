@@ -5,6 +5,7 @@ const TEAMS = {
     searchName: 'Mississippi State',
     espnSlug: 'mississippi-state',
     officialDomains: ['hailstate.com'],
+    officialArchive: 'https://hailstate.com/sports/football/archives?path=football',
     titleAliases: [/\bmississippi state\b/i,/\bmississippi st\.?\b/i,/\bmsu bulldogs?\b/i,/\bstate bulldogs?\b/i]
   },
   uab: {
@@ -13,6 +14,7 @@ const TEAMS = {
     searchName: 'UAB Blazers',
     espnSlug: 'uab',
     officialDomains: ['uabsports.com'],
+    officialArchive: 'https://uabsports.com/sports/football/archives?path=football',
     titleAliases: [/\buab\b/i,/\buab blazers?\b/i]
   },
   southeastern: {
@@ -21,6 +23,7 @@ const TEAMS = {
     searchName: 'Southeastern Louisiana',
     espnSlug: 'southeastern-louisiana',
     officialDomains: ['lionsports.net'],
+    officialArchive: 'https://lionsports.net/sports/football/archives?path=football',
     titleAliases: [/\bsoutheastern louisiana\b/i,/\bslu lions?\b/i]
   },
   fau: {
@@ -29,6 +32,7 @@ const TEAMS = {
     searchName: 'Florida Atlantic',
     espnSlug: 'florida-atlantic',
     officialDomains: ['fausports.com'],
+    officialArchive: 'https://fausports.com/sports/football/archives?path=football',
     titleAliases: [/\bflorida atlantic\b/i,/\bfau\b/i,/\bfau owls?\b/i]
   },
   southalabama: {
@@ -37,6 +41,7 @@ const TEAMS = {
     searchName: 'South Alabama Jaguars',
     espnSlug: 'south-alabama',
     officialDomains: ['usajaguars.com'],
+    officialArchive: 'https://usajaguars.com/sports/football/archives?path=football',
     titleAliases: [/\bsouth alabama\b/i,/\busa jaguars?\b/i]
   },
   latech: {
@@ -45,6 +50,7 @@ const TEAMS = {
     searchName: 'Louisiana Tech Bulldogs',
     espnSlug: 'louisiana-tech',
     officialDomains: ['latechsports.com'],
+    officialArchive: 'https://latechsports.com/sports/football/archives?path=football',
     titleAliases: [/\blouisiana tech\b/i,/\blatech\b/i,/\bla tech\b/i]
   },
   troy: {
@@ -53,6 +59,7 @@ const TEAMS = {
     searchName: 'Troy Trojans',
     espnSlug: 'troy',
     officialDomains: ['troytrojans.com'],
+    officialArchive: 'https://troytrojans.com/sports/football/archives?path=football',
     titleAliases: [/\btroy trojans?\b/i,/\btroy football\b/i]
   },
   southernmiss: {
@@ -61,6 +68,7 @@ const TEAMS = {
     searchName: 'Southern Miss Golden Eagles',
     espnSlug: 'southern-miss',
     officialDomains: ['southernmiss.com'],
+    officialArchive: 'https://southernmiss.com/sports/football/archives?path=football',
     titleAliases: [/\bsouthern miss\b/i,/\bsouthern mississippi\b/i,/\busm golden eagles?\b/i]
   },
   arkansasstate: {
@@ -69,6 +77,7 @@ const TEAMS = {
     searchName: 'Arkansas State Red Wolves',
     espnSlug: 'arkansas-state',
     officialDomains: ['astateredwolves.com'],
+    officialArchive: 'https://astateredwolves.com/sports/football/archives?path=football',
     titleAliases: [/\barkansas state\b/i,/\ba-state\b/i,/\barkansas st\.?\b/i]
   },
   louisiana: {
@@ -77,6 +86,7 @@ const TEAMS = {
     searchName: 'Louisiana Ragin Cajuns',
     espnSlug: 'louisiana',
     officialDomains: ['ragincajuns.com'],
+    officialArchive: 'https://ragincajuns.com/sports/football/archives?path=football',
     titleAliases: [/\blouisiana ragin'? cajuns?\b/i,/\bragin'? cajuns?\b/i,/\bul lafayette\b/i]
   },
   appstate: {
@@ -85,6 +95,7 @@ const TEAMS = {
     searchName: 'Appalachian State Mountaineers',
     espnSlug: 'appalachian-state',
     officialDomains: ['appstatesports.com'],
+    officialArchive: 'https://appstatesports.com/sports/football/archives?path=football',
     titleAliases: [/\bapp state\b/i,/\bappalachian state\b/i,/\bmountaineers football\b/i]
   },
   marshall: {
@@ -93,6 +104,7 @@ const TEAMS = {
     searchName: 'Marshall Thundering Herd',
     espnSlug: 'marshall',
     officialDomains: ['herdzone.com'],
+    officialArchive: 'https://herdzone.com/sports/football/archives?path=football',
     titleAliases: [/\bmarshall thundering herd\b/i,/\bmarshall football\b/i]
   }
 };
@@ -158,6 +170,49 @@ function parseNews(xml, team){
   }).filter(x=>x.title&&x.url).filter(isFootballStory).filter(x=>isCurrentTeamStory(x,team));
 }
 
+
+async function fetchOfficialFootballArchive(team){
+  if(!team.officialArchive) return [];
+  try{
+    const r=await fetch(team.officialArchive,{headers:{'User-Agent':'Mozilla/5.0 ULM-Football-Intelligence'}});
+    if(!r.ok) return [];
+    const html=await r.text();
+    // Restrict parsing to the archive section. On SIDEARM athletics sites this
+    // section is already filtered to Football, so titles do NOT need to contain
+    // words like "football", "QB", etc. This preserves headlines such as
+    // "Evans Eyeing Record-Breaking Year..." without admitting golf/basketball.
+    const marker=html.search(/Story\s+Archives/i);
+    let section=marker>=0 ? html.slice(marker) : html;
+    const footer=section.search(/<footer\b|sidearm-footer/i);
+    if(footer>0) section=section.slice(0,footer);
+
+    const domain=team.officialDomains?.[0] || '';
+    const base=domain ? `https://${domain}` : team.officialArchive;
+    const out=[];
+    const seen=new Set();
+    const re=/<a\b[^>]*href=["']([^"']*\/news\/\d{4}\/\d{1,2}\/\d{1,2}\/[^"'#?]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+    let m;
+    while((m=re.exec(section))){
+      let href=decode(m[1]).trim();
+      let title=strip(m[2]);
+      if(!title || /^(read more|details|recap|story)$/i.test(title)) continue;
+      let url;
+      try{ url=new URL(href,base).toString(); }catch{ continue; }
+      if(OTHER_SPORT_URL.test(url) || OTHER_SPORTS.test(title)) continue;
+      const dm=href.match(/\/news\/(\d{4})\/(\d{1,2})\/(\d{1,2})\//i);
+      const publishedAt=dm ? new Date(Date.UTC(Number(dm[1]),Number(dm[2])-1,Number(dm[3]),12,0,0)).toISOString() : '';
+      const key=(title+'|'+url).toLowerCase();
+      if(seen.has(key)) continue;
+      seen.add(key);
+      out.push({title,url,publishedAt,description:'',source:domain||team.name+' Athletics',kind:'official'});
+      if(out.length>=40) break;
+    }
+    return out;
+  }catch{
+    return [];
+  }
+}
+
 async function fetchSchedule(teamId, season){
   const url=`https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/${encodeURIComponent(teamId)}/schedule?season=${season}`;
   const r=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0 ULM-Football-Intelligence'}});
@@ -209,16 +264,21 @@ export default async function handler(req,res){
   const team=TEAMS[key] || TEAMS.msstate;
   try{
     const newsBase=`intitle:"${team.searchName}" football when:14d -baseball -basketball -softball -soccer -volleyball`;
-    const officialBase=team.officialDomains[0] ? `site:${team.officialDomains[0]} inurl:football "${team.searchName}" when:30d` : newsBase;
+    // Keep a Google News official-site fallback, but do not require 'football'
+    // in the URL. Many legitimate football headlines have generic slugs/titles.
+    const officialBase=team.officialDomains[0] ? `site:${team.officialDomains[0]} "${team.searchName}" football when:30d -baseball -basketball -softball -soccer -volleyball -golf -tennis` : newsBase;
 
-    const [allXml, offXml, schedule26, schedule25] = await Promise.all([
+    const [allXml, offXml, officialArchive, schedule26, schedule25] = await Promise.all([
       getFeed(newsBase),
       getFeed(officialBase).catch(()=>'<rss/>'),
+      fetchOfficialFootballArchive(team),
       fetchSchedule(team.espnId,2026).catch(()=>({events:[]})),
       fetchSchedule(team.espnId,2025).catch(()=>({events:[]}))
     ]);
 
-    const items=[...parseNews(offXml,team),...parseNews(allXml,team)];
+    // Archive entries come from the school's Football archive itself and are
+    // therefore trusted as football. Google feeds remain filtered as before.
+    const items=[...officialArchive,...parseNews(offXml,team),...parseNews(allXml,team)];
     const seen=new Set();
     const unique=items.filter(x=>{
       const k=x.title.toLowerCase().replace(/\W/g,'');
