@@ -114,13 +114,23 @@ async function getFeed(query){
   return await r.text();
 }
 
-const FOOTBALL_TERMS = /\b(football|bulldogs|blazers|lions|owls|jaguars|trojans|golden eagles|red wolves|cajuns|mountaineers|thundering herd|sun belt|sec|aac|c-usa|conference usa|quarterback|\bqb\b|running back|\brb\b|wide receiver|\bwr\b|tight end|\bte\b|offensive line|defensive line|linebacker|cornerback|safety|depth chart|injury|injuries|practice|camp|scrimmage|kickoff|game|season|coach|coaching|offense|offensive|defense|defensive|special teams|transfer portal|recruit|recruiting|commit|commitment|roster|starter|starting|touchdown|passing|rushing|receiving|interception|sack)\b/i;
-const OTHER_SPORTS = /\b(baseball|basketball|softball|soccer|volleyball|tennis|golf|track|cross country|swimming|women's basketball|men's basketball)\b/i;
+// Football has to be positively identified. Generic school words such as
+// "Bulldogs", "game", "season" or "coach" are intentionally NOT enough;
+// those were allowing other Mississippi State sports into the feed.
+const STRICT_FOOTBALL_TERMS = /\b(football|quarterback|qb|running back|rb|wide receiver|wr|tight end|te|offensive line|o-line|defensive line|d-line|linebacker|cornerback|defensive back|secondary|safety|edge rusher|pass rush|depth chart|scrimmage|kickoff|touchdown|passing|rushing|receiving|interception|sack|punt|punter|field goal|placekicker|special teams|offense|offensive|defense|defensive|red zone|two[- ]minute|third down|fourth down|fbs|bowl game)\b/i;
+const OTHER_SPORTS = /\b(baseball|basketball|softball|soccer|volleyball|tennis|golf|track(?: and field)?|cross country|swimming|wrestling|gymnastics|lacrosse|hockey)\b/i;
+const FOOTBALL_URL = /\/(?:sports\/football(?:\/|$)|football(?:[-\/]|$))/i;
+const OTHER_SPORT_URL = /\/(?:baseball|softball|soccer|volleyball|mens-basketball|womens-basketball|men-s-basketball|women-s-basketball|mens-golf|womens-golf|men-s-golf|women-s-golf|mens-tennis|womens-tennis|men-s-tennis|women-s-tennis|track-and-field|cross-country)(?:[-\/]|$)/i;
 
 function isFootballStory(item){
-  const hay=(item.title+' '+item.description).toLowerCase();
-  if(OTHER_SPORTS.test(hay) && !/football/i.test(hay)) return false;
-  return FOOTBALL_TERMS.test(hay);
+  const hay=((item.title||'')+' '+(item.description||'')).toLowerCase();
+  const url=item.url||'';
+  // Reject URLs that explicitly identify another sport, even if the article
+  // happens to contain a generic football-adjacent word elsewhere.
+  if(OTHER_SPORT_URL.test(url) && !FOOTBALL_URL.test(url)) return false;
+  if(FOOTBALL_URL.test(url)) return true;
+  if(OTHER_SPORTS.test(hay) && !/\bfootball\b/i.test(hay)) return false;
+  return STRICT_FOOTBALL_TERMS.test(hay);
 }
 
 // Keep the feed about the CURRENT opponent, not alumni/former-player stories.
@@ -199,7 +209,7 @@ export default async function handler(req,res){
   const team=TEAMS[key] || TEAMS.msstate;
   try{
     const newsBase=`intitle:"${team.searchName}" football when:14d -baseball -basketball -softball -soccer -volleyball`;
-    const officialBase=team.officialDomains[0] ? `site:${team.officialDomains[0]} "${team.searchName}" football when:30d` : newsBase;
+    const officialBase=team.officialDomains[0] ? `site:${team.officialDomains[0]} inurl:football "${team.searchName}" when:30d` : newsBase;
 
     const [allXml, offXml, schedule26, schedule25] = await Promise.all([
       getFeed(newsBase),
