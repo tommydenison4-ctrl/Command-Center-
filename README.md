@@ -1,44 +1,18 @@
-# ULM Football Intelligence Command Center — Opponent Hub
+# ULM Football Intelligence Command Center — Opponent News v3
 
-This build adds a 2026 ULM schedule rail to the Command Center.
+This version fixes the over-filtering problem in the football-only news feed.
 
 ## What changed
-- Click any 2026 opponent in the left schedule rail.
-- The hub switches to that opponent's football-only news feed.
-- `NEWS` shows recent official + media football stories.
-- `PAST BOX SCORES` shows the opponent's most recent completed 2025–26 games and links each game to its ESPN box score.
-- The feed refreshes every 5 minutes while open.
-- The current game-week opponent is selected automatically by date.
-- The existing Mississippi State depth chart remains visible when Mississippi State is selected and hides when another opponent is selected.
+- Official opponent stories are now pulled from each school's Football archive page when available.
+- Because the archive itself is football-filtered, legitimate headlines no longer need to contain words such as "football", "QB", or "touchdown" to appear.
+- Explicit non-football sports (golf, basketball, baseball, softball, soccer, volleyball, tennis, etc.) are still rejected.
+- External media remains strict: it must be football-related and identify the selected opponent in the headline.
+- Google News remains a fallback/secondary source so the feed is not dependent on one source.
+- Schedule sidebar, future-opponent switching, and past box scores remain unchanged.
 
-## GitHub / Vercel structure
-Keep the files in this structure:
+## GitHub / Vercel
+Replace both of these in the existing repo:
+- `index.html`
+- `api/opponent-news.js`
 
-```
-index.html
-README.md
-ULM_Week_1_Mississippi_State_Depth_Chart_v2.pdf
-api/
-  opponent-news.js
-```
-
-The `api` folder is required. Upload the updated `index.html` and the updated `api/opponent-news.js` to the same GitHub repo. Vercel will run the API automatically.
-
-## Live data
-- News: Google News RSS, filtered to football only, with each opponent's official athletics domain included.
-- Recent results / box-score links: ESPN college-football schedule data.
-- ULM 2026 schedule dates: ULM Athletics published 2026 schedule.
-
-## Opponent news relevance fix
-- External media articles must identify the selected opponent in the headline, not just mention a former player or old school connection in the body/description.
-- Former/alumni/transfer-history headlines are filtered out of the selected opponent feed.
-- Official athletics-site football stories remain eligible.
-- Clicking any future opponent in the 2026 schedule now automatically returns the workspace to NEWS and loads that opponent's football feed.
-- Schedule rows now display VIEW NEWS to make scout-ahead navigation obvious.
-
-
-## Football-only feed hardening
-- Official athletics stories are no longer trusted merely because they come from the school domain.
-- A story must have a positive football signal in its URL or football-specific title/description terms.
-- URLs explicitly tagged for golf, basketball, baseball, softball, soccer, volleyball, tennis and other sports are rejected.
-- Official-site Google News query now uses `inurl:football` to prioritize the football section/article slugs.
+Keep `opponent-news.js` inside the `api` folder.
