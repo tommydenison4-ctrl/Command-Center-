@@ -114,7 +114,7 @@ function decode(s=''){
     .replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
     .replace(/&lt;/g,'<').replace(/&gt;/g,'>');
 }
-function strip(s=''){ return decode(s.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()); }
+function strip(s=''){ const d=decode(decode(s)); return d.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim(); }
 function tag(block,name){ const m=block.match(new RegExp('<'+name+'(?:\\s[^>]*)?>([\\s\\S]*?)<\\/'+name+'>','i')); return m ? strip(m[1]) : ''; }
 function link(block){ let m=block.match(/<link>([\s\S]*?)<\/link>/i); if(m) return strip(m[1]); m=block.match(/<link[^>]+href=["']([^"']+)/i); return m ? m[1] : ''; }
 function sourceFromTitle(title){ const parts=title.split(' - '); return parts.length > 1 ? parts.pop().trim() : 'News'; }
