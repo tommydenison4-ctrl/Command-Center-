@@ -28,3 +28,10 @@ The `api` folder is required. Upload the updated `index.html` and the updated `a
 - News: Google News RSS, filtered to football only, with each opponent's official athletics domain included.
 - Recent results / box-score links: ESPN college-football schedule data.
 - ULM 2026 schedule dates: ULM Athletics published 2026 schedule.
+
+## Opponent news relevance fix
+- External media articles must identify the selected opponent in the headline, not just mention a former player or old school connection in the body/description.
+- Former/alumni/transfer-history headlines are filtered out of the selected opponent feed.
+- Official athletics-site football stories remain eligible.
+- Clicking any future opponent in the 2026 schedule now automatically returns the workspace to NEWS and loads that opponent's football feed.
+- Schedule rows now display VIEW NEWS to make scout-ahead navigation obvious.
