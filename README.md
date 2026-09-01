@@ -35,3 +35,10 @@ The `api` folder is required. Upload the updated `index.html` and the updated `a
 - Official athletics-site football stories remain eligible.
 - Clicking any future opponent in the 2026 schedule now automatically returns the workspace to NEWS and loads that opponent's football feed.
 - Schedule rows now display VIEW NEWS to make scout-ahead navigation obvious.
+
+
+## Football-only feed hardening
+- Official athletics stories are no longer trusted merely because they come from the school domain.
+- A story must have a positive football signal in its URL or football-specific title/description terms.
+- URLs explicitly tagged for golf, basketball, baseball, softball, soccer, volleyball, tennis and other sports are rejected.
+- Official-site Google News query now uses `inurl:football` to prioritize the football section/article slugs.
