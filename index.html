@@ -56,6 +56,20 @@ footer{margin-top:25px;border-top:1px solid rgba(255,255,255,.08);padding:17px 2
 .newsTitle h2{font-size:20px;margin:0}.newsMeta{font-size:10px;color:#91a9b7;margin-top:5px}.newsControls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.newsPill{font-size:8px;font-weight:950;letter-spacing:.08em;border:1px solid #35505f;border-radius:999px;padding:7px 9px;background:#071923;color:#c7d6de}.newsPill.live{color:#bff6db;border-color:#34785e}.newsRefresh{border:1px solid #a53c49;border-radius:9px;background:#8A2432;color:#fff;padding:8px 10px;font-size:9px;font-weight:950;cursor:pointer}.newsBody{padding:14px 16px 16px}.newsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.newsCard{display:block;text-decoration:none;color:inherit;border:1px solid #213b48;border-radius:12px;background:#06151e;padding:12px;min-height:132px;transition:.18s ease}.newsCard:hover{transform:translateY(-2px);border-color:#587481;background:#081c27}.newsSource{display:flex;justify-content:space-between;gap:8px;font-size:8px;font-weight:900;letter-spacing:.06em;color:#EBA800;text-transform:uppercase}.newsAge{color:#8098a6;font-weight:800;letter-spacing:0;text-transform:none}.newsCard h3{font-size:12px;line-height:1.35;margin:8px 0 7px;color:#f2f7f9}.newsCard p{font-size:9.5px;line-height:1.4;color:#91a9b7;margin:0}.newsEmpty{grid-column:1/-1;padding:18px;border:1px dashed #35505f;border-radius:12px;color:#91a9b7;font-size:10px;text-align:center}.newsFoot{display:flex;justify-content:space-between;gap:10px;margin-top:10px;color:#718a98;font-size:8.5px}.newsFoot b{color:#d6e2e8}.newsOpponent{color:#fff}.newsBreaking{border-color:#7a5b15}.newsBreaking .newsSource:after{content:"GAME WEEK";color:#ffd477}.newsTabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.newsTab{border:1px solid #304956;background:#071720;color:#a9bbc5;border-radius:999px;padding:6px 9px;font-size:8px;font-weight:900;cursor:pointer}.newsTab.active,.newsTab:hover{background:#8A2432;color:#fff;border-color:#a33b49}
 @media(max-width:1000px){.newsGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.newsHead{align-items:flex-start;flex-direction:column}.newsGrid{grid-template-columns:1fr}}
 
+
+
+/* Opponent schedule + intelligence rail */
+.opponentCenter{display:grid;grid-template-columns:270px minmax(0,1fr);gap:14px;margin:0 0 16px;align-items:start}
+.scheduleRail{border:1px solid #2b4654;border-radius:18px;background:linear-gradient(145deg,#0b202c,#061720);overflow:hidden;position:sticky;top:90px}
+.scheduleRailHead{padding:15px 15px 12px;border-bottom:1px solid rgba(255,255,255,.08)}.scheduleRailHead h2{font-size:17px;margin:4px 0 0}.scheduleRailHead p{font-size:9px;color:#91a9b7;margin:5px 0 0;line-height:1.4}
+.scheduleList{padding:7px}.scheduleGame{width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;border:1px solid transparent;border-radius:10px;background:transparent;color:#d8e3e9;padding:9px 8px;cursor:pointer;transition:.15s ease}.scheduleGame:hover{background:#0a202b;border-color:#2f4a58}.scheduleGame.active{background:linear-gradient(135deg,rgba(138,36,50,.82),rgba(94,25,35,.82));border-color:#b44756;color:#fff}.scheduleGame.current:not(.active){border-color:rgba(235,168,0,.45);background:rgba(235,168,0,.04)}
+.scheduleWeek{font-size:8px;color:#7f98a6;font-weight:950;letter-spacing:.05em}.scheduleGame.active .scheduleWeek{color:#ffd276}.scheduleOpponent{font-size:10px;font-weight:950;line-height:1.15}.scheduleLoc{font-size:8px;color:#8fa6b3;margin-top:3px}.scheduleGame.active .scheduleLoc{color:#e7cbd0}.scheduleDate{font-size:8px;font-weight:900;color:#9eb1bc;white-space:nowrap}.scheduleGame.active .scheduleDate{color:#fff}
+.opponentWorkspace{min-width:0}.opponentBanner{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin:0 0 10px;padding:2px 2px 10px;border-bottom:1px solid rgba(255,255,255,.07)}.opponentBanner h2{font-size:26px;margin:4px 0 4px;letter-spacing:-.03em}.opponentBannerMeta{font-size:10px;color:#91a9b7}.opponentViewTabs{display:flex;gap:7px;flex-wrap:wrap}.opponentViewTab{border:1px solid #35505f;border-radius:9px;background:#071923;color:#c7d6de;padding:8px 10px;font-size:9px;font-weight:950;cursor:pointer}.opponentViewTab.active,.opponentViewTab:hover{background:#8A2432;color:#fff;border-color:#a53c49}
+.opponentView{display:none}.opponentView.active{display:block}.gamesHub{border:1px solid #2b4654;border-radius:18px;background:linear-gradient(145deg,#0b202c,#061720);overflow:hidden}.gamesHead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.08)}.gamesHead h3{font-size:18px;margin:4px 0 0}.gamesMeta{font-size:9px;color:#91a9b7;margin-top:5px}.gamesList{padding:10px 12px 13px}.gameRow{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:11px;align-items:center;padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.07)}.gameRow:last-child{border-bottom:0}.gameDate{font-size:9px;color:#8fa6b3;font-weight:900}.gameMatchup{min-width:0}.gameMatchup b{font-size:11px;color:#f3f7f9}.gameVenue{font-size:8.5px;color:#7e96a4;margin-top:3px}.gameScore{display:flex;align-items:center;gap:9px;white-space:nowrap}.gameResult{font-size:10px;font-weight:950;border-radius:999px;padding:4px 7px;border:1px solid #35505f}.gameResult.W{color:#bff6db;border-color:#34785e}.gameResult.L{color:#ffd1d8;border-color:#8d4350}.gameResult.T{color:#f4ddb2;border-color:#7b6b43}.scoreText{font-size:12px;font-weight:950}.boxLink{text-decoration:none;color:white;background:#8A2432;border:1px solid #a43b49;border-radius:8px;padding:7px 9px;font-size:8px;font-weight:950}.gamesEmpty{padding:20px;color:#91a9b7;font-size:10px;text-align:center}
+.newsHub.inWorkspace{margin:0}.depthHub.hiddenOpponent{display:none}
+@media(max-width:1000px){.opponentCenter{grid-template-columns:220px minmax(0,1fr)}.scheduleGame{grid-template-columns:38px minmax(0,1fr)}.scheduleDate{grid-column:2}.gameRow{grid-template-columns:75px minmax(0,1fr)}.gameScore{grid-column:2}}
+@media(max-width:760px){.opponentCenter{grid-template-columns:1fr}.scheduleRail{position:static}.scheduleList{display:flex;overflow-x:auto;gap:5px;padding:8px}.scheduleGame{min-width:175px;grid-template-columns:38px minmax(0,1fr);flex:0 0 auto}.scheduleDate{grid-column:2}.opponentBanner{align-items:flex-start;flex-direction:column}.gameRow{grid-template-columns:1fr}.gameScore{grid-column:1;justify-content:space-between}.boxLink{margin-left:auto}}
+
 </style>
 </head>
 <body>
@@ -66,7 +80,34 @@ footer{margin-top:25px;border-top:1px solid rgba(255,255,255,.08);padding:17px 2
 
 <main>
 
-<section class="depthHub">
+<section class="opponentCenter" id="opponentCenter">
+  <aside class="scheduleRail">
+    <div class="scheduleRailHead"><div class="kicker">2026 ULM SCHEDULE</div><h2>Opponent Intelligence</h2><p>Pick an opponent to switch football news and recent box scores.</p></div>
+    <div class="scheduleList" id="scheduleList"></div>
+  </aside>
+  <div class="opponentWorkspace">
+    <div class="opponentBanner">
+      <div><div class="moduleTag" id="opponentWeekLabel">WEEK 1 • ROAD</div><h2 id="opponentName">Mississippi State</h2><div class="opponentBannerMeta" id="opponentGameMeta">September 5 • 6:30 PM CT • ESPNU</div></div>
+      <div class="opponentViewTabs"><button class="opponentViewTab active" data-view="news">NEWS</button><button class="opponentViewTab" data-view="games">PAST BOX SCORES</button></div>
+    </div>
+    <div class="opponentView active" data-opponent-view="news"><section class="newsHub inWorkspace" id="newsHub">
+  <div class="newsHead">
+    <div class="newsTitle"><div class="moduleTag">GAME WEEK INTELLIGENCE</div><h2 id="newsTitle">Mississippi State Football News</h2><div class="newsMeta" id="newsMeta">Football-only coverage • official + media • live updates</div></div>
+    <div class="newsControls"><span class="newsPill live">● LIVE FEED</span><span class="newsPill" id="newsUpdated">Updating…</span><button class="newsRefresh" id="newsRefresh">REFRESH NEWS</button></div>
+  </div>
+  <div class="newsBody">
+    <div class="newsTabs"><button class="newsTab active" data-newsfilter="all">ALL</button><button class="newsTab" data-newsfilter="official">OFFICIAL</button><button class="newsTab" data-newsfilter="media">MEDIA</button></div>
+    <div class="newsGrid" id="newsGrid"><div class="newsEmpty">Loading current game-week news…</div></div>
+    <div class="newsFoot"><span>Feed refreshes automatically every 5 minutes while the hub is open.</span><span>Team: <b id="newsOpponentFoot">Mississippi State Football</b></span></div>
+  </div>
+</section></div>
+    <div class="opponentView" data-opponent-view="games">
+      <section class="gamesHub"><div class="gamesHead"><div><div class="moduleTag">RECENT RESULTS</div><h3 id="gamesTitle">Mississippi State Box Scores</h3><div class="gamesMeta" id="gamesMeta">Most recent completed games from 2025–26.</div></div><span class="newsPill" id="gamesCount">—</span></div><div class="gamesList" id="gamesList"><div class="gamesEmpty">Loading recent box scores…</div></div></section>
+    </div>
+  </div>
+</section>
+
+<section class="depthHub" id="msDepthHub">
 <div class="depthHubHead">
 <div class="depthHubTitle"><div class="moduleTag">WEEK 1 • MISSISSIPPI STATE</div><h2>Opponent Depth Chart</h2><div class="depthHubMeta">September 5, 2026 • 6:30 PM CT • Davis Wade Stadium • ESPNU</div></div>
 <div class="depthHubActions"><button class="depthTab active" data-depth="offense">OFFENSE</button><button class="depthTab" data-depth="defense">DEFENSE</button><button class="depthTab" data-depth="special">SPECIAL TEAMS</button><a class="depthPdf" href="ULM_Week_1_Mississippi_State_Depth_Chart_v2.pdf" target="_blank">OPEN FULL PDF ↗</a></div>
@@ -75,18 +116,6 @@ footer{margin-top:25px;border-top:1px solid rgba(255,255,255,.08);padding:17px 2
 <div class="depthPane" data-pane="defense"><div class="depthQuick"><span><b>DEFENSE</b> 3-3-5</span><span><b>MLB1</b> #7 Zakari Tillman</span><span><b>NB1</b> #2 Isaac Smith</span></div><div class="depthTableWrap"><table class="depthTable"><thead><tr><th>POS</th><th>1ST</th><th>2ND</th><th>3RD / ADDITIONAL</th></tr></thead><tbody><tr><td>DE</td><td>43 Will Whitson (GR/TR)</td><td>23 Trevion Williams (RS JR)</td><td>97 Jayson Jenkins (RS SR/TR)</td></tr><tr><td>NT</td><td>9 Jaray Bledsoe (RS SR/TR)</td><td>35 Kalvin Dinkins (RS SR)</td><td>99 Diesel Moye (RS SR/TR)</td></tr><tr><td>DT</td><td>14 Dealyn Evans (RS SO/TR)</td><td>42 DJ Reed (RS JR/TR)</td><td>55 Colin Coates (RS JR/TR)</td></tr><tr><td>JACK</td><td>4 Amaree Williams (JR/TR)</td><td>16 Derion Gullette (RS JR/TR)</td><td>41 Tyshun Willis (RS FR)</td></tr><tr><td>WLB</td><td>11 Tyler Lockhart (SO)</td><td>10 Jalen Smith (RS JR/TR)</td><td>13 LaKendrick James (RS JR/TR)</td></tr><tr><td>MLB</td><td>7 Zakari Tillman (SR)</td><td>0 Fatt Forrest (RS SO)</td><td>32 AJ Rice (RS FR) / 44 Gav Holman (RS SO/TR)</td></tr><tr><td>LCB</td><td>1 Kelley Jones (RS JR)</td><td>8 Kaylib Singleton (RS FR/TR)</td><td>17 Kyle Johnson (RS FR)</td></tr><tr><td>SS</td><td>5 Jardin Gilbert (GR/TR)</td><td>28 Tanner Johnson (RS SR)</td><td>12 Ja&#x27;Bryis Stewart (RS JR/TR)</td></tr><tr><td>FS</td><td>15 Marcus Williams (RS SR/TR)</td><td>6 Bralan Womack (FR)</td><td>21 Dre Riley (JR/TR)</td></tr><tr><td>RCB</td><td>24 Quentin Taylor (RS SO/TR)</td><td>20 Jett Jefferson (RS JR/TR)</td><td>26 Jamroc Grimsley (RS SO/TR)</td></tr><tr><td>NB</td><td>2 Isaac Smith (SR)</td><td>3 Kendel Dolby (GR/TR)</td><td></td></tr></tbody></table></div></div>
 <div class="depthPane" data-pane="special"><div class="depthQuick"><span><b>PR1</b> #3 Anthony Evans III</span><span><b>KR1</b> #2 Marquis Johnson</span><span><b>PK / KO</b> #80 Kyle Ferrie</span></div><div class="depthTableWrap"><table class="depthTable"><thead><tr><th>POS</th><th>1ST</th><th>2ND</th><th>3RD</th></tr></thead><tbody><tr><td>PT</td><td>88 Ethan Pulliam (RS JR)</td><td>Oisin Flynn (FR)</td><td></td></tr><tr><td>PK</td><td>80 Kyle Ferrie (SR)</td><td>47 William Wilkinson (RS SO)</td><td>48 Hayden Chambers (FR)</td></tr><tr><td>KO</td><td>80 Kyle Ferrie (SR)</td><td>47 William Wilkinson (RS SO)</td><td>48 Hayden Chambers (FR)</td></tr><tr><td>LS</td><td>39 Kallen Cosper (RS FR)</td><td>46 Kyle Rushing (FR)</td><td></td></tr><tr><td>H</td><td>88 Ethan Pulliam (RS JR)</td><td>Oisin Flynn (FR)</td><td></td></tr><tr><td>PR</td><td>3 Anthony Evans III (SR/TR)</td><td>6 Kolin Wilson (RS FR)</td><td></td></tr><tr><td>KR</td><td>2 Marquis Johnson (SR/TR)</td><td>3 Anthony Evans III (SR/TR)</td><td></td></tr></tbody></table></div></div>
 <div class="depthNote" style="padding:0 16px 14px">Source: Ourlads.com • Updated 06/17/2026 • Internal matchup use.</div>
-</section>
-
-<section class="newsHub" id="newsHub">
-  <div class="newsHead">
-    <div class="newsTitle"><div class="moduleTag">GAME WEEK INTELLIGENCE</div><h2>Mississippi State Football News</h2><div class="newsMeta" id="newsMeta">Football-only coverage • official + media • live updates</div></div>
-    <div class="newsControls"><span class="newsPill live">● LIVE FEED</span><span class="newsPill" id="newsUpdated">Updating…</span><button class="newsRefresh" id="newsRefresh">REFRESH NEWS</button></div>
-  </div>
-  <div class="newsBody">
-    <div class="newsTabs"><button class="newsTab active" data-newsfilter="all">ALL</button><button class="newsTab" data-newsfilter="official">OFFICIAL</button><button class="newsTab" data-newsfilter="media">MEDIA</button></div>
-    <div class="newsGrid" id="newsGrid"><div class="newsEmpty">Loading current game-week news…</div></div>
-    <div class="newsFoot"><span>Feed refreshes automatically every 5 minutes while the hub is open.</span><span>Team: <b id="newsOpponentFoot">Mississippi State Football</b></span></div>
-  </div>
 </section>
 
 <div class="sectionTitle"><div><div class="kicker">LIVE STAFF TOOLS</div><h2>Purpose-Built Football Apps</h2><p>Each app owns a specific football problem.</p></div><div class="line"></div><div class="searchRow"><button class="filterBtn active" data-filter="all">ALL</button><button class="filterBtn" data-filter="offense">OFFENSE</button><button class="filterBtn" data-filter="defense">DEFENSE</button><button class="filterBtn" data-filter="special teams">ST</button><button class="filterBtn" data-filter="ol rb qb">POSITION</button></div></div>
@@ -173,18 +202,43 @@ document.querySelectorAll('.depthTab').forEach(btn=>btn.addEventListener('click'
 function tick(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+' • '+d.toLocaleDateString([],{month:'short',day:'numeric'})}tick();setInterval(tick,30000);
 
 
-// ---- Game Week News Wire ----
+// ---- Opponent Schedule + Live Football Intelligence ----
+const ULM_SCHEDULE=[
+  {key:'msstate',week:1,date:'2026-09-05',dateLabel:'SEP 5',opponent:'Mississippi State',location:'at',time:'6:30 PM CT',tv:'ESPNU'},
+  {key:'uab',week:2,date:'2026-09-12',dateLabel:'SEP 12',opponent:'UAB',location:'at',time:'2:30 PM CT',tv:'ESPN+'},
+  {key:'southeastern',week:3,date:'2026-09-19',dateLabel:'SEP 19',opponent:'Southeastern Louisiana',location:'vs',time:'3:30 PM CT',tv:'ESPN+'},
+  {key:'fau',week:4,date:'2026-09-26',dateLabel:'SEP 26',opponent:'FAU',location:'vs',time:'TBD',tv:''},
+  {key:'southalabama',week:5,date:'2026-10-03',dateLabel:'OCT 3',opponent:'South Alabama',location:'at',time:'TBD',tv:''},
+  {key:'latech',week:7,date:'2026-10-17',dateLabel:'OCT 17',opponent:'Louisiana Tech',location:'vs',time:'TBD',tv:''},
+  {key:'troy',week:8,date:'2026-10-24',dateLabel:'OCT 24',opponent:'Troy',location:'at',time:'TBD',tv:''},
+  {key:'southernmiss',week:9,date:'2026-10-31',dateLabel:'OCT 31',opponent:'Southern Miss',location:'vs',time:'TBD',tv:''},
+  {key:'arkansasstate',week:10,date:'2026-11-07',dateLabel:'NOV 7',opponent:'Arkansas State',location:'at',time:'TBD',tv:''},
+  {key:'louisiana',week:11,date:'2026-11-12',dateLabel:'NOV 12',opponent:"Ragin' Cajuns",location:'vs',time:'8:00 PM CT',tv:'ESPN / ESPN2'},
+  {key:'appstate',week:12,date:'2026-11-21',dateLabel:'NOV 21',opponent:'App State',location:'at',time:'TBD',tv:''},
+  {key:'marshall',week:13,date:'2026-11-28',dateLabel:'NOV 28',opponent:'Marshall',location:'vs',time:'TBD',tv:''}
+];
+const scheduleList=document.getElementById('scheduleList');
 const newsGrid=document.getElementById('newsGrid');
 const newsOpponentFoot=document.getElementById('newsOpponentFoot');
 const newsUpdated=document.getElementById('newsUpdated');
-let newsItems=[];let newsFilter='all';
+const gamesList=document.getElementById('gamesList');
+const gamesCount=document.getElementById('gamesCount');
+let activeOpponent='msstate';let newsItems=[];let gameItems=[];let newsFilter='all';
 function escapeHtml(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function ageLabel(iso){const d=new Date(iso);if(isNaN(d))return '';const mins=Math.max(0,Math.floor((Date.now()-d)/60000));if(mins<60)return mins+'m ago';const hrs=Math.floor(mins/60);if(hrs<24)return hrs+'h ago';const days=Math.floor(hrs/24);return days+'d ago'}
-function renderNews(){const rows=newsItems.filter(x=>newsFilter==='all'||x.kind===newsFilter);if(!rows.length){newsGrid.innerHTML='<div class="newsEmpty">No matching recent stories found yet.</div>';return}newsGrid.innerHTML=rows.slice(0,15).map((x,i)=>`<a class="newsCard ${i<3?'newsBreaking':''}" href="${escapeHtml(x.url)}" target="_blank" rel="noopener"><div class="newsSource"><span>${escapeHtml(x.source||'News')}</span><span class="newsAge">${escapeHtml(ageLabel(x.publishedAt))}</span></div><h3>${escapeHtml(x.title)}</h3><p>${escapeHtml(x.description||'Open article for details.')}</p></a>`).join('')}
-async function loadNews(force=false){newsUpdated.textContent='Updating…';try{const r=await fetch('/api/opponent-news'+(force?'?refresh=1':''),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const data=await r.json();newsItems=data.items||[];newsOpponentFoot.textContent=(data.opponent||'Mississippi State')+' Football';document.getElementById('newsMeta').textContent=`${data.gameLabel||'Mississippi State Football'} • ${newsItems.length} recent football stories • official + media`;newsUpdated.textContent='Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});renderNews()}catch(e){newsGrid.innerHTML='<div class="newsEmpty">News feed is not connected yet. Deploy this folder on Vercel so /api/opponent-news can run.</div>';newsUpdated.textContent='Feed offline'}}
+function ageLabel(iso){const d=new Date(iso);if(isNaN(d))return '';const mins=Math.max(0,Math.floor((Date.now()-d)/60000));if(mins<60)return mins+'m ago';const hrs=Math.floor(mins/60);if(hrs<24)return hrs+'h ago';return Math.floor(hrs/24)+'d ago'}
+function prettyDate(iso){const d=new Date(iso);if(isNaN(d))return '';return d.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})}
+function currentScheduleKey(){const today=new Date();today.setHours(0,0,0,0);const next=ULM_SCHEDULE.find(g=>{const d=new Date(g.date+'T12:00:00');return d>=today});return (next||ULM_SCHEDULE[ULM_SCHEDULE.length-1]).key}
+const currentKey=currentScheduleKey();
+function renderSchedule(){scheduleList.innerHTML=ULM_SCHEDULE.map(g=>`<button class="scheduleGame ${g.key===activeOpponent?'active':''} ${g.key===currentKey?'current':''}" data-team="${g.key}" type="button"><span class="scheduleWeek">WK ${g.week}</span><span><span class="scheduleOpponent">${escapeHtml(g.opponent)}</span><span class="scheduleLoc">${g.location==='at'?'AT':'HOME'}</span></span><span class="scheduleDate">${g.dateLabel}</span></button>`).join('');scheduleList.querySelectorAll('.scheduleGame').forEach(b=>b.addEventListener('click',()=>selectOpponent(b.dataset.team)))}
+function renderNews(){const rows=newsItems.filter(x=>newsFilter==='all'||x.kind===newsFilter);if(!rows.length){newsGrid.innerHTML='<div class="newsEmpty">No matching recent football stories found yet.</div>';return}newsGrid.innerHTML=rows.slice(0,15).map((x,i)=>`<a class="newsCard ${i<3?'newsBreaking':''}" href="${escapeHtml(x.url)}" target="_blank" rel="noopener"><div class="newsSource"><span>${escapeHtml(x.source||'News')}</span><span class="newsAge">${escapeHtml(ageLabel(x.publishedAt))}</span></div><h3>${escapeHtml(x.title)}</h3><p>${escapeHtml(x.description||'Open article for details.')}</p></a>`).join('')}
+function renderGames(){gamesCount.textContent=gameItems.length+' GAMES';if(!gameItems.length){gamesList.innerHTML='<div class="gamesEmpty">No completed games were returned yet.</div>';return}gamesList.innerHTML=gameItems.map(g=>`<div class="gameRow"><div class="gameDate">${escapeHtml(prettyDate(g.date))}</div><div class="gameMatchup"><b>${escapeHtml(g.homeAway||'vs')} ${escapeHtml(g.opponent)}</b><div class="gameVenue">${escapeHtml(g.venue||'')}</div></div><div class="gameScore"><span class="gameResult ${escapeHtml(g.result||'')}">${escapeHtml(g.result||'—')}</span><span class="scoreText">${g.teamScore==null?'—':escapeHtml(g.teamScore)} – ${g.opponentScore==null?'—':escapeHtml(g.opponentScore)}</span>${g.boxscoreUrl?`<a class="boxLink" href="${escapeHtml(g.boxscoreUrl)}" target="_blank" rel="noopener">BOX SCORE ↗</a>`:''}</div></div>`).join('')}
+function updateOpponentHeader(key){const g=ULM_SCHEDULE.find(x=>x.key===key)||ULM_SCHEDULE[0];document.getElementById('opponentWeekLabel').textContent=`WEEK ${g.week} • ${g.location==='at'?'ROAD':'HOME'}`;document.getElementById('opponentName').textContent=g.opponent;document.getElementById('opponentGameMeta').textContent=`${prettyDate(g.date)} • ${g.time}${g.tv?' • '+g.tv:''}`;document.getElementById('newsTitle').textContent=g.opponent+' Football News';document.getElementById('gamesTitle').textContent=g.opponent+' Box Scores';newsOpponentFoot.textContent=g.opponent+' Football';document.getElementById('msDepthHub').classList.toggle('hiddenOpponent',key!=='msstate')}
+async function loadOpponent(force=false){newsUpdated.textContent='Updating…';newsGrid.innerHTML='<div class="newsEmpty">Loading football news…</div>';gamesList.innerHTML='<div class="gamesEmpty">Loading recent box scores…</div>';try{const qs=new URLSearchParams({team:activeOpponent});if(force)qs.set('refresh','1');const r=await fetch('/api/opponent-news?'+qs.toString(),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const data=await r.json();newsItems=data.items||[];gameItems=data.games||[];document.getElementById('newsMeta').textContent=`${newsItems.length} recent football stories • official + media • live updates`;document.getElementById('gamesMeta').textContent='Most recent completed games from 2025–26.';newsUpdated.textContent='Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});renderNews();renderGames()}catch(e){newsGrid.innerHTML='<div class="newsEmpty">Opponent feed is offline. Make sure /api/opponent-news.js is deployed with this index file.</div>';gamesList.innerHTML='<div class="gamesEmpty">Box-score feed is offline.</div>';newsUpdated.textContent='Feed offline';gamesCount.textContent='—'}}
+function selectOpponent(key){if(!ULM_SCHEDULE.some(g=>g.key===key))return;activeOpponent=key;renderSchedule();updateOpponentHeader(key);loadOpponent(false)}
 document.querySelectorAll('.newsTab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.newsTab').forEach(x=>x.classList.remove('active'));b.classList.add('active');newsFilter=b.dataset.newsfilter;renderNews()}));
-document.getElementById('newsRefresh').addEventListener('click',()=>loadNews(true));
-loadNews();setInterval(()=>loadNews(false),300000);
+document.querySelectorAll('.opponentViewTab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.opponentViewTab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.opponentView').forEach(x=>x.classList.remove('active'));b.classList.add('active');const v=document.querySelector(`.opponentView[data-opponent-view="${b.dataset.view}"]`);if(v)v.classList.add('active')}));
+document.getElementById('newsRefresh').addEventListener('click',()=>loadOpponent(true));
+activeOpponent=currentKey;renderSchedule();updateOpponentHeader(activeOpponent);loadOpponent(false);setInterval(()=>loadOpponent(false),300000);
 
 </script>
 </body>
