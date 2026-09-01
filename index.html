@@ -70,6 +70,47 @@ footer{margin-top:25px;border-top:1px solid rgba(255,255,255,.08);padding:17px 2
 @media(max-width:1000px){.opponentCenter{grid-template-columns:220px minmax(0,1fr)}.scheduleGame{grid-template-columns:38px minmax(0,1fr)}.scheduleDate{grid-column:2}.gameRow{grid-template-columns:75px minmax(0,1fr)}.gameScore{grid-column:2}}
 @media(max-width:760px){.opponentCenter{grid-template-columns:1fr}.scheduleRail{position:static}.scheduleList{display:flex;overflow-x:auto;gap:5px;padding:8px}.scheduleGame{min-width:175px;grid-template-columns:38px minmax(0,1fr);flex:0 0 auto}.scheduleDate{grid-column:2}.opponentBanner{align-items:flex-start;flex-direction:column}.gameRow{grid-template-columns:1fr}.gameScore{grid-column:1;justify-content:space-between}.boxLink{margin-left:auto}}
 
+
+/* Mobile compact opponent/news experience */
+@media(max-width:700px){
+  header{position:relative}
+  .head{padding:9px 12px 10px;gap:9px;align-items:stretch}
+  .brand{gap:10px;align-items:center}
+  .roundel{width:44px;height:44px;flex:0 0 44px}.star{font-size:34px}.dot{width:11px;height:11px}
+  .kicker{font-size:7px}.brand h1{font-size:19px;line-height:1.02;margin-top:2px}.sub{display:none}
+  .headTools{margin-top:1px}.search{height:39px;padding:8px 11px;font-size:13px}
+  main{padding:10px 10px 42px}
+
+  .opponentCenter{gap:8px;margin-bottom:10px}
+  .scheduleRail{border-radius:14px}
+  .scheduleRailHead{padding:9px 11px 7px;display:flex;align-items:center;gap:8px}
+  .scheduleRailHead .kicker{white-space:nowrap}.scheduleRailHead h2{font-size:14px;margin:0}.scheduleRailHead p{display:none}
+  .scheduleList{padding:6px 7px 7px;gap:6px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .scheduleList::-webkit-scrollbar{display:none}
+  .scheduleGame{min-width:148px;height:63px;padding:7px 8px;gap:5px;grid-template-columns:31px minmax(0,1fr);scroll-snap-align:start;border-radius:9px}
+  .scheduleWeek{font-size:7px}.scheduleOpponent{font-size:9.5px;line-height:1.08;display:block;white-space:normal}.scheduleLoc{font-size:7px;margin-top:2px}
+  .scheduleRight{grid-column:2;grid-row:2;display:block;align-self:end}.scheduleDate{font-size:7px}.scheduleScout{display:none}
+
+  .opponentBanner{padding:0 2px 8px;margin-bottom:8px;gap:7px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end}
+  .opponentBanner>div:first-child{min-width:0}.opponentBanner .moduleTag{font-size:7px}.opponentBanner h2{font-size:22px;margin:2px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.opponentBannerMeta{font-size:8.5px}
+  .opponentViewTabs{gap:5px;align-self:end}.opponentViewTab{padding:7px 8px;font-size:8px;border-radius:8px;white-space:nowrap}
+
+  .newsHub{border-radius:14px;margin-bottom:12px}
+  .newsHead{padding:10px 11px 9px;gap:7px}
+  .newsTitle .moduleTag{font-size:7px}.newsTitle h2{font-size:18px;line-height:1.08;margin-top:2px}.newsMeta{font-size:8px;margin-top:3px}
+  .newsControls{width:100%;gap:5px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.newsControls::-webkit-scrollbar{display:none}
+  .newsPill{font-size:7px;padding:6px 7px;white-space:nowrap}.newsRefresh{font-size:7.5px;padding:7px 8px;white-space:nowrap}
+  .newsBody{padding:8px 0 10px}
+  .newsTabs{padding:0 10px;margin-bottom:7px;gap:5px}.newsTab{font-size:7.5px;padding:6px 9px}
+  .newsGrid{display:flex;grid-template-columns:none;gap:8px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x mandatory;scroll-padding-left:10px;padding:0 10px 3px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .newsGrid::-webkit-scrollbar{display:none}
+  .newsCard{flex:0 0 82%;width:82%;min-height:142px;max-height:158px;padding:11px;border-radius:11px;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;display:flex;flex-direction:column}
+  .newsSource{font-size:7.5px}.newsCard h3{font-size:14px;line-height:1.28;margin:9px 0 0;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .newsCard p{display:none}.newsFoot{display:none}.newsEmpty{flex:0 0 calc(100% - 20px);margin:0;min-height:90px;display:grid;place-items:center}
+
+  .gamesHead{padding:10px 11px}.gamesHead h3{font-size:17px}.gamesMeta{font-size:8px}.gamesList{padding:5px 9px 8px}.gameRow{padding:9px 4px;gap:5px}.gameMatchup b{font-size:10px}.gameVenue{font-size:7.5px}.gameScore{font-size:8px}.boxLink{padding:6px 7px}
+}
+
 </style>
 </head>
 <body>
