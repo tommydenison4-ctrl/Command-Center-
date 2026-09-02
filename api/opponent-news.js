@@ -111,8 +111,12 @@ const TEAMS = {
 
 function decode(s=''){
   return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1')
+    .replace(/&nbsp;/gi,' ').replace(/&#160;/gi,' ')
     .replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
-    .replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+    .replace(/&ldquo;|&rdquo;/gi,'"').replace(/&lsquo;|&rsquo;/gi,"'")
+    .replace(/&mdash;/gi,'—').replace(/&ndash;/gi,'–')
+    .replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+    .replace(/&#(\d+);/g,(_,n)=>{try{return String.fromCharCode(Number(n))}catch{return ' '}});
 }
 function strip(s=''){ const d=decode(decode(s)); return d.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim(); }
 function tag(block,name){ const m=block.match(new RegExp('<'+name+'(?:\\s[^>]*)?>([\\s\\S]*?)<\\/'+name+'>','i')); return m ? strip(m[1]) : ''; }
@@ -213,6 +217,116 @@ async function fetchOfficialFootballArchive(team){
   }
 }
 
+
+
+// Build useful notes from the actual article page when possible. This is
+// extractive rather than generative: it only uses text published in the story,
+// avoiding invented details while still giving coaches a quick read.
+function cleanArticleText(s=''){
+  return strip(s)
+    .replace(/\bADVERTISEMENT\b/gi,' ')
+    .replace(/\b(?:Sign up|Subscribe|Read more|Click here|Related story|More stories)\b[^.]{0,120}/gi,' ')
+    .replace(/\s+/g,' ').trim();
+}
+function sentenceSplit(text=''){
+  return cleanArticleText(text).split(/(?<=[.!?])\s+(?=[A-Z0-9“"'])/)
+    .map(x=>x.trim()).filter(x=>x.length>=45 && x.length<=360);
+}
+function meaningfulSentence(s='', title=''){
+  const low=s.toLowerCase();
+  if(!s || low.includes('cookie') || low.includes('privacy policy') || low.includes('all rights reserved') || low.includes('javascript')) return false;
+  const compact=(title||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const ss=low.replace(/[^a-z0-9]+/g,' ').trim();
+  if(compact && (ss===compact || ss.startsWith(compact+' '))) return false;
+  return true;
+}
+function makeExtractiveSummary(text='', title=''){
+  const sentences=sentenceSplit(text).filter(s=>meaningfulSentence(s,title));
+  if(!sentences.length) return '';
+  const footballSignal=/\b(quarterback|qb|running back|receiver|offense|defense|linebacker|secondary|starter|starting|depth|injury|practice|scrimmage|coach|touchdown|passing|rushing|pressure|coverage|special teams|return|kickoff|game|season)\b/i;
+  const ranked=sentences.map((s,i)=>({s,i,score:(footballSignal.test(s)?3:0)+(i<5?2:0)+(s.length<240?1:0)}))
+    .sort((a,b)=>b.score-a.score || a.i-b.i);
+  const picks=[];
+  for(const r of ranked){
+    if(picks.some(x=>x.s.toLowerCase()===r.s.toLowerCase())) continue;
+    picks.push(r);
+    if(picks.length>=3) break;
+  }
+  picks.sort((a,b)=>a.i-b.i);
+  let out=picks.map(x=>x.s).join(' ');
+  if(out.length>520) out=out.slice(0,517).replace(/\s+\S*$/,'')+'…';
+  return out;
+}
+function extractQuote(text=''){
+  const t=cleanArticleText(text);
+  const patterns=[/[“\"]([^”\"]{35,220})[”\"]/g,/‘([^’]{35,220})’/g];
+  for(const re of patterns){
+    let m;
+    while((m=re.exec(t))){
+      const q=(m[1]||'').trim();
+      if(/\b(?:cookie|subscribe|copyright|privacy)\b/i.test(q)) continue;
+      return q;
+    }
+  }
+  return '';
+}
+function inferTagsFromText(text=''){
+  const t=text.toLowerCase();
+  const rules=[
+    ['INJURY',/injur|hurt|questionable|limited|ruled out|availability/],
+    ['DEPTH',/depth chart|starter|starting|first team|two-deep|position battle/],
+    ['QB',/quarterback|\bqb\b/],
+    ['OFFENSE',/offense|offensive|receiver|running back|tight end|offensive line|touchdown|passing|rushing/],
+    ['DEFENSE',/defense|defensive|linebacker|cornerback|safety|secondary|pass rush|pressure|coverage/],
+    ['SPECIAL TEAMS',/special teams|kicker|punter|returner|kickoff|punt return|kick return/],
+    ['COACH QUOTE',/head coach|offensive coordinator|defensive coordinator|coach .*said|coach .*says/],
+    ['PERSONNEL',/transfer|roster|returning|freshman|senior|junior|sophomore/]
+  ];
+  const out=[]; for(const [label,re] of rules){if(re.test(t) && out.length<4) out.push(label)}
+  return out.length?out:['GAME WEEK'];
+}
+async function fetchArticleIntelligence(item){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),4500);
+  try{
+    const r=await fetch(item.url,{redirect:'follow',signal:controller.signal,headers:{'User-Agent':'Mozilla/5.0 (compatible; ULMFootballIntelligence/1.0)'}});
+    if(!r.ok) return item;
+    const html=await r.text();
+    let body='';
+    // Prefer structured articleBody when publishers expose it.
+    const ab=html.match(/"articleBody"\s*:\s*"((?:\\.|[^"\\])*)"/i);
+    if(ab){
+      try{ body=JSON.parse('"'+ab[1]+'"'); }catch{ body=ab[1].replace(/\\n/g,' ').replace(/\\"/g,'"'); }
+    }
+    if(!body){
+      const paragraphs=[]; let m;
+      const pre=html.replace(/<script\b[\s\S]*?<\/script>/gi,' ').replace(/<style\b[\s\S]*?<\/style>/gi,' ');
+      const re=/<p\b[^>]*>([\s\S]*?)<\/p>/gi;
+      while((m=re.exec(pre))){
+        const txt=cleanArticleText(m[1]);
+        if(txt.length>=55 && meaningfulSentence(txt,item.title)) paragraphs.push(txt);
+        if(paragraphs.length>=18) break;
+      }
+      body=paragraphs.join(' ');
+    }
+    const meta=(html.match(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)["']/i)||[])[1]||'';
+    const sourceText=body || meta || item.description || '';
+    const summary=makeExtractiveSummary(sourceText,item.title) || cleanArticleText(meta) || cleanArticleText(item.description||'');
+    const quote=extractQuote(body);
+    const tags=inferTagsFromText((item.title||'')+' '+sourceText);
+    return {...item,summary,quote,tags,notesSource: body?'article':'feed'};
+  }catch{
+    const summary=cleanArticleText(item.description||'');
+    return {...item,summary,tags:inferTagsFromText((item.title||'')+' '+summary),notesSource:'feed'};
+  }finally{clearTimeout(timer)}
+}
+async function mapLimit(items,limit,fn){
+  const out=new Array(items.length); let next=0;
+  async function worker(){while(true){const i=next++; if(i>=items.length) return; out[i]=await fn(items[i]);}}
+  await Promise.all(Array.from({length:Math.min(limit,items.length)},worker));
+  return out;
+}
+
 async function fetchSchedule(teamId, season){
   const url=`https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/${encodeURIComponent(teamId)}/schedule?season=${season}`;
   const r=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0 ULM-Football-Intelligence'}});
@@ -280,11 +394,16 @@ export default async function handler(req,res){
     // therefore trusted as football. Google feeds remain filtered as before.
     const items=[...officialArchive,...parseNews(offXml,team),...parseNews(allXml,team)];
     const seen=new Set();
-    const unique=items.filter(x=>{
+    const uniqueBase=items.filter(x=>{
       const k=x.title.toLowerCase().replace(/\W/g,'');
       if(seen.has(k)) return false;
       seen.add(k); return true;
     }).sort((a,b)=>new Date(b.publishedAt)-new Date(a.publishedAt)).slice(0,30);
+
+    // Enrich the 15 stories actually shown in the carousel. We read the page
+    // itself where possible so READ NOTES contains substantive article notes.
+    const enrichedTop=await mapLimit(uniqueBase.slice(0,15),5,fetchArticleIntelligence);
+    const unique=[...enrichedTop,...uniqueBase.slice(15).map(x=>({...x,summary:cleanArticleText(x.description||''),tags:inferTagsFromText((x.title||'')+' '+(x.description||'')),notesSource:'feed'}))];
 
     const games=[...parseGames(schedule26,team),...parseGames(schedule25,team)]
       .sort((a,b)=>new Date(b.date)-new Date(a.date))
