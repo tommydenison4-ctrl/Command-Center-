@@ -16,3 +16,6 @@ Replace both of these in the existing repo:
 - `api/opponent-news.js`
 
 Keep `opponent-news.js` inside the `api` folder.
+
+
+- Increased the mobile 'Opponent Intelligence' heading size in the schedule rail for better readability.
