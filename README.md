@@ -19,3 +19,5 @@ Keep `opponent-news.js` inside the `api` folder.
 
 
 - Increased the mobile 'Opponent Intelligence' heading size in the schedule rail for better readability.
+
+- Increased the mobile Opponent Intelligence heading substantially to 26px and adjusted its header spacing for better visual prominence.
