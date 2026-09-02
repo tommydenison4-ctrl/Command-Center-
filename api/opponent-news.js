@@ -285,15 +285,44 @@ function inferTagsFromText(text=''){
   const out=[]; for(const [label,re] of rules){if(re.test(t) && out.length<4) out.push(label)}
   return out.length?out:['GAME WEEK'];
 }
+function isBoilerplateNewsText(text='', title=''){
+  const t=cleanArticleText(text);
+  if(!t || t.length<90) return true;
+  if(/comprehensive up-to-date news coverage|aggregated from sources all over the world by google news|google news/i.test(t)) return true;
+  const norm=x=>(x||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const nt=norm(title), nb=norm(t);
+  if(nt && (nb===nt || nb.startsWith(nt+' ') || nt.startsWith(nb+' '))) return true;
+  return false;
+}
+function makeNoteLines(text='', title=''){
+  const sentences=sentenceSplit(text).filter(x=>meaningfulSentence(x,title));
+  if(!sentences.length) return [];
+  const buckets=[
+    {label:'WHAT MATTERS',re:/\b(starter|starting|will start|expected|plan|focus|emphasis|goal|prepare|opener|matchup|role|rotation|change|return)\b/i},
+    {label:'PERSONNEL',re:/\b(quarterback|qb|running back|receiver|tight end|offensive line|linebacker|cornerback|safety|transfer|freshman|senior|player|depth|rotation)\b/i},
+    {label:'SCHEME / STYLE',re:/\b(offense|defense|tempo|run game|passing|pressure|coverage|front|formation|special teams|blitz|rushing|passing)\b/i},
+    {label:'STATUS',re:/\b(injury|injured|healthy|available|availability|limited|questionable|out|returning|practice|scrimmage)\b/i}
+  ];
+  const used=new Set(), out=[];
+  for(const b of buckets){
+    const hit=sentences.find((x,i)=>!used.has(i)&&b.re.test(x));
+    if(hit){ const i=sentences.indexOf(hit); used.add(i); out.push({label:b.label,text:hit}); }
+  }
+  for(let i=0;i<sentences.length && out.length<4;i++){
+    if(used.has(i)) continue;
+    used.add(i); out.push({label:out.length?'MORE':'WHAT MATTERS',text:sentences[i]});
+  }
+  return out.slice(0,4).map(x=>({label:x.label,text:x.text.length>240?x.text.slice(0,237).replace(/\s+\S*$/,'')+'…':x.text}));
+}
 async function fetchArticleIntelligence(item){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),4500);
   try{
     const r=await fetch(item.url,{redirect:'follow',signal:controller.signal,headers:{'User-Agent':'Mozilla/5.0 (compatible; ULMFootballIntelligence/1.0)'}});
-    if(!r.ok) return item;
+    if(!r.ok) throw new Error('article '+r.status);
+    const finalUrl=r.url||item.url;
     const html=await r.text();
     let body='';
-    // Prefer structured articleBody when publishers expose it.
     const ab=html.match(/"articleBody"\s*:\s*"((?:\\.|[^"\\])*)"/i);
     if(ab){
       try{ body=JSON.parse('"'+ab[1]+'"'); }catch{ body=ab[1].replace(/\\n/g,' ').replace(/\\"/g,'"'); }
@@ -305,19 +334,28 @@ async function fetchArticleIntelligence(item){
       while((m=re.exec(pre))){
         const txt=cleanArticleText(m[1]);
         if(txt.length>=55 && meaningfulSentence(txt,item.title)) paragraphs.push(txt);
-        if(paragraphs.length>=18) break;
+        if(paragraphs.length>=24) break;
       }
       body=paragraphs.join(' ');
     }
     const meta=(html.match(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)["']/i)||[])[1]||'';
-    const sourceText=body || meta || item.description || '';
-    const summary=makeExtractiveSummary(sourceText,item.title) || cleanArticleText(meta) || cleanArticleText(item.description||'');
-    const quote=extractQuote(body);
+    const landedOnGoogle=/news\.google\.com/i.test(finalUrl);
+    let sourceText=landedOnGoogle ? '' : (body || meta || '');
+    if(isBoilerplateNewsText(sourceText,item.title)) sourceText='';
+    if(!sourceText){
+      const feed=cleanArticleText(item.description||'');
+      if(!isBoilerplateNewsText(feed,item.title)) sourceText=feed;
+    }
+    const noteLines=makeNoteLines(sourceText,item.title);
+    const summary=noteLines.map(x=>x.text).join(' ');
+    const quote=sourceText ? extractQuote(body) : '';
     const tags=inferTagsFromText((item.title||'')+' '+sourceText);
-    return {...item,summary,quote,tags,notesSource: body?'article':'feed'};
+    return {...item,summary,noteLines,quote,tags,hasNotes:noteLines.length>=2,notesSource:sourceText?(landedOnGoogle?'feed':'article'):'none'};
   }catch{
-    const summary=cleanArticleText(item.description||'');
-    return {...item,summary,tags:inferTagsFromText((item.title||'')+' '+summary),notesSource:'feed'};
+    const feed=cleanArticleText(item.description||'');
+    const sourceText=isBoilerplateNewsText(feed,item.title)?'':feed;
+    const noteLines=makeNoteLines(sourceText,item.title);
+    return {...item,summary:noteLines.map(x=>x.text).join(' '),noteLines,tags:inferTagsFromText((item.title||'')+' '+sourceText),hasNotes:noteLines.length>=2,notesSource:sourceText?'feed':'none'};
   }finally{clearTimeout(timer)}
 }
 async function mapLimit(items,limit,fn){
@@ -403,7 +441,7 @@ export default async function handler(req,res){
     // Enrich the 15 stories actually shown in the carousel. We read the page
     // itself where possible so READ NOTES contains substantive article notes.
     const enrichedTop=await mapLimit(uniqueBase.slice(0,15),5,fetchArticleIntelligence);
-    const unique=[...enrichedTop,...uniqueBase.slice(15).map(x=>({...x,summary:cleanArticleText(x.description||''),tags:inferTagsFromText((x.title||'')+' '+(x.description||'')),notesSource:'feed'}))];
+    const unique=[...enrichedTop,...uniqueBase.slice(15).map(x=>{const t=cleanArticleText(x.description||'');const noteLines=isBoilerplateNewsText(t,x.title)?[]:makeNoteLines(t,x.title);return {...x,summary:noteLines.map(n=>n.text).join(' '),noteLines,tags:inferTagsFromText((x.title||'')+' '+t),hasNotes:noteLines.length>=2,notesSource:noteLines.length?'feed':'none'}})];
 
     const games=[...parseGames(schedule26,team),...parseGames(schedule25,team)]
       .sort((a,b)=>new Date(b.date)-new Date(a.date))
