@@ -21,3 +21,8 @@ Keep `opponent-news.js` inside the `api` folder.
 - Increased the mobile 'Opponent Intelligence' heading size in the schedule rail for better readability.
 
 - Increased the mobile Opponent Intelligence heading substantially to 26px and adjusted its header spacing for better visual prominence.
+
+- Added player-card-style news detail view: READ NOTES opens a focused intelligence card without changing the carousel layout.
+- Added BACK TO NEWS navigation that restores the user's previous carousel position.
+- Added OPEN STORY as a separate action on every card and inside the detail view.
+- Added compact intelligence tags inferred from each story, with support for API-provided summaries/tags/quotes later.
