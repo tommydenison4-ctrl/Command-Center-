@@ -284,12 +284,12 @@ function inferNewsTags(item){
   return tags.length?tags:['GAME WEEK'];
 }
 function notesText(item){
-  return (item.summary||item.notes||item.description||'Open the original story for full details.').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+  return (item.summary||item.notes||item.description||'Notes unavailable from this publisher. Open the original story for full details.').replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;/gi,' ').replace(/\s+/g,' ').trim();
 }
 function openNewsDetail(index){
   const item=newsItems[index];if(!item)return;
   newsScrollLeft=newsGrid.scrollLeft;
-  const tags=inferNewsTags(item).map(t=>`<span class="newsTag">${escapeHtml(t)}</span>`).join('');
+  const tags=(Array.isArray(item.tags)&&item.tags.length?item.tags:inferNewsTags(item)).map(t=>`<span class="newsTag">${escapeHtml(t)}</span>`).join('');
   const quote=item.quote?`<div class="newsQuote">“${escapeHtml(item.quote)}”</div>`:'';
   newsDetail.innerHTML=`<div class="newsDetailTop"><button class="newsBack" id="newsBackBtn" type="button">← BACK TO NEWS</button><div class="newsDetailSource">${escapeHtml(item.source||'News')} • ${escapeHtml(ageLabel(item.publishedAt))}</div></div><div class="newsDetailBody"><h3>${escapeHtml(item.title)}</h3><div class="newsTags">${tags}</div><p class="newsDetailNotes">${escapeHtml(notesText(item))}</p>${quote}<div class="newsDetailFooter"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener">OPEN STORY ↗</a></div></div>`;
   newsGrid.style.display='none';newsDetail.classList.add('active');

@@ -26,3 +26,11 @@ Keep `opponent-news.js` inside the `api` folder.
 - Added BACK TO NEWS navigation that restores the user's previous carousel position.
 - Added OPEN STORY as a separate action on every card and inside the detail view.
 - Added compact intelligence tags inferred from each story, with support for API-provided summaries/tags/quotes later.
+
+V8 news intelligence notes:
+- READ NOTES now attempts to read the actual published article server-side.
+- Builds a concise extractive football summary from the article text instead of simply repeating the RSS description.
+- Extracts a direct quote when one is clearly present in the accessible story text.
+- Adds football intelligence tags based on the article content.
+- Cleans HTML entities such as &nbsp; from feed text.
+- Falls back gracefully when a publisher blocks article access.
