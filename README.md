@@ -36,3 +36,8 @@ V8 news intelligence notes:
 - Falls back gracefully when a publisher blocks article access.
 
 - News notes v9: suppresses Google News boilerplate, shows structured football intelligence lines only when enough source text exists, and labels short/video items instead of fabricating notes.
+
+- v10 fixes over-aggressive no-notes classification.
+- Added a readability fallback for article pages and Google News redirect links so READ NOTES can be built from actual story text more often.
+- Official athletics stories no longer become SHORT / VIDEO ITEM just because the normal server fetch cannot parse the page.
+- Stories with genuinely inaccessible/thin text now show OPEN STORY ONLY rather than being mislabeled as video.
