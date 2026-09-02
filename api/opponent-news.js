@@ -314,49 +314,98 @@ function makeNoteLines(text='', title=''){
   }
   return out.slice(0,4).map(x=>({label:x.label,text:x.text.length>240?x.text.slice(0,237).replace(/\s+\S*$/,'')+'…':x.text}));
 }
+async function fetchReadableTextViaReader(url){
+  // Jina Reader is a public readability fallback. It is especially useful for
+  // SIDEARM athletics pages and Google News redirect URLs that return a shell
+  // instead of the actual story HTML to a serverless fetch.
+  try{
+    const target='https://r.jina.ai/http://r.jina.ai/http://invalid';
+    const clean=String(url||'').replace(/^https?:\/\//i,'');
+    const reader='https://r.jina.ai/http://'+clean;
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),6500);
+    try{
+      const r=await fetch(reader,{signal:controller.signal,headers:{'User-Agent':'Mozilla/5.0 ULM-Football-Intelligence'}});
+      if(!r.ok) return '';
+      const md=await r.text();
+      // Remove markdown chrome while preserving paragraph/sentence content.
+      return cleanArticleText(md
+        .replace(/^Title:.*$/gmi,' ')
+        .replace(/^URL Source:.*$/gmi,' ')
+        .replace(/^Published Time:.*$/gmi,' ')
+        .replace(/^Markdown Content:.*$/gmi,' ')
+        .replace(/!\[[^\]]*\]\([^)]*\)/g,' ')
+        .replace(/\[([^\]]+)\]\([^)]*\)/g,'$1')
+        .replace(/^#{1,6}\s+/gm,' ')
+        .replace(/[>*_`~|]/g,' '));
+    }finally{clearTimeout(timer)}
+  }catch{return ''}
+}
+function articleTextQuality(text='',title=''){
+  const t=cleanArticleText(text);
+  if(isBoilerplateNewsText(t,title)) return 0;
+  const sentences=sentenceSplit(t).filter(x=>meaningfulSentence(x,title));
+  const football=sentences.filter(x=>/\b(football|quarterback|qb|receiver|running back|offense|defense|coach|starter|practice|scrimmage|touchdown|passing|rushing|coverage|pressure|special teams|season|game)\b/i.test(x));
+  return Math.min(100,t.length/25)+sentences.length*5+football.length*8;
+}
 async function fetchArticleIntelligence(item){
+  let directText=''; let body=''; let finalUrl=item.url||'';
   const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),4500);
+  const timer=setTimeout(()=>controller.abort(),5000);
   try{
     const r=await fetch(item.url,{redirect:'follow',signal:controller.signal,headers:{'User-Agent':'Mozilla/5.0 (compatible; ULMFootballIntelligence/1.0)'}});
-    if(!r.ok) throw new Error('article '+r.status);
-    const finalUrl=r.url||item.url;
-    const html=await r.text();
-    let body='';
-    const ab=html.match(/"articleBody"\s*:\s*"((?:\\.|[^"\\])*)"/i);
-    if(ab){
-      try{ body=JSON.parse('"'+ab[1]+'"'); }catch{ body=ab[1].replace(/\\n/g,' ').replace(/\\"/g,'"'); }
-    }
-    if(!body){
-      const paragraphs=[]; let m;
-      const pre=html.replace(/<script\b[\s\S]*?<\/script>/gi,' ').replace(/<style\b[\s\S]*?<\/style>/gi,' ');
-      const re=/<p\b[^>]*>([\s\S]*?)<\/p>/gi;
-      while((m=re.exec(pre))){
-        const txt=cleanArticleText(m[1]);
-        if(txt.length>=55 && meaningfulSentence(txt,item.title)) paragraphs.push(txt);
-        if(paragraphs.length>=24) break;
+    if(r.ok){
+      finalUrl=r.url||item.url;
+      const html=await r.text();
+      const bodies=[];
+      // Common JSON-LD forms. Some sites escape articleBody differently, so
+      // collect all plausible matches rather than relying on one exact shape.
+      const reAB=/["']articleBody["']\s*:\s*["']((?:\\.|[^"'\\])*)["']/gi;
+      let ab;
+      while((ab=reAB.exec(html))){
+        let v=ab[1]||'';
+        try{v=JSON.parse('"'+v.replace(/"/g,'\\"')+'"')}catch{v=v.replace(/\\n/g,' ').replace(/\\"/g,'"').replace(/\\u0026/g,'&')}
+        if(v.length>150) bodies.push(v);
       }
-      body=paragraphs.join(' ');
+      // Pull article/main paragraphs before generic page paragraphs.
+      const pre=html.replace(/<script\b[\s\S]*?<\/script>/gi,' ').replace(/<style\b[\s\S]*?<\/style>/gi,' ');
+      const articleMatch=pre.match(/<(?:article|main)\b[^>]*>([\s\S]*?)<\/(?:article|main)>/i);
+      const scope=articleMatch?articleMatch[1]:pre;
+      const paragraphs=[]; let m;
+      const re=/<p\b[^>]*>([\s\S]*?)<\/p>/gi;
+      while((m=re.exec(scope))){
+        const txt=cleanArticleText(m[1]);
+        if(txt.length>=45 && meaningfulSentence(txt,item.title)) paragraphs.push(txt);
+        if(paragraphs.length>=40) break;
+      }
+      const meta=(html.match(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)["']/i)||[])[1]||'';
+      body=[...bodies,paragraphs.join(' '),meta].sort((a,b)=>b.length-a.length)[0]||'';
+      directText=cleanArticleText(body);
     }
-    const meta=(html.match(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)["']/i)||[])[1]||'';
-    const landedOnGoogle=/news\.google\.com/i.test(finalUrl);
-    let sourceText=landedOnGoogle ? '' : (body || meta || '');
-    if(isBoilerplateNewsText(sourceText,item.title)) sourceText='';
-    if(!sourceText){
-      const feed=cleanArticleText(item.description||'');
-      if(!isBoilerplateNewsText(feed,item.title)) sourceText=feed;
-    }
-    const noteLines=makeNoteLines(sourceText,item.title);
-    const summary=noteLines.map(x=>x.text).join(' ');
-    const quote=sourceText ? extractQuote(body) : '';
-    const tags=inferTagsFromText((item.title||'')+' '+sourceText);
-    return {...item,summary,noteLines,quote,tags,hasNotes:noteLines.length>=2,notesSource:sourceText?(landedOnGoogle?'feed':'article'):'none'};
-  }catch{
+  }catch{}finally{clearTimeout(timer)}
+
+  // If a normal fetch landed on Google News, got blocked, or produced thin
+  // content, ask a readability proxy for the rendered/readable story text.
+  let readerText='';
+  if(/news\.google\.com/i.test(finalUrl)||articleTextQuality(directText,item.title)<55){
+    readerText=await fetchReadableTextViaReader(item.url);
+  }
+  let sourceText=articleTextQuality(readerText,item.title)>articleTextQuality(directText,item.title)?readerText:directText;
+  if(isBoilerplateNewsText(sourceText,item.title)) sourceText='';
+
+  // RSS snippets are only a last fallback and only when they contain enough
+  // real story context. They are never described as a video item by default.
+  if(!sourceText){
     const feed=cleanArticleText(item.description||'');
-    const sourceText=isBoilerplateNewsText(feed,item.title)?'':feed;
-    const noteLines=makeNoteLines(sourceText,item.title);
-    return {...item,summary:noteLines.map(x=>x.text).join(' '),noteLines,tags:inferTagsFromText((item.title||'')+' '+sourceText),hasNotes:noteLines.length>=2,notesSource:sourceText?'feed':'none'};
-  }finally{clearTimeout(timer)}
+    if(!isBoilerplateNewsText(feed,item.title) && feed.length>=130) sourceText=feed;
+  }
+
+  const noteLines=makeNoteLines(sourceText,item.title);
+  const summary=noteLines.map(x=>x.text).join(' ');
+  const quote=sourceText ? extractQuote(sourceText) : '';
+  const tags=inferTagsFromText((item.title||'')+' '+sourceText);
+  const hasNotes=noteLines.length>=2 && articleTextQuality(sourceText,item.title)>=45;
+  return {...item,summary,noteLines,quote,tags,hasNotes,notesSource:hasNotes?(readerText===sourceText?'reader':directText===sourceText?'article':'feed'):'none'};
 }
 async function mapLimit(items,limit,fn){
   const out=new Array(items.length); let next=0;
