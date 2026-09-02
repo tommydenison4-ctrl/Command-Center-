@@ -34,3 +34,5 @@ V8 news intelligence notes:
 - Adds football intelligence tags based on the article content.
 - Cleans HTML entities such as &nbsp; from feed text.
 - Falls back gracefully when a publisher blocks article access.
+
+- News notes v9: suppresses Google News boilerplate, shows structured football intelligence lines only when enough source text exists, and labels short/video items instead of fabricating notes.
