@@ -314,6 +314,23 @@ function makeNoteLines(text='', title=''){
   }
   return out.slice(0,4).map(x=>({label:x.label,text:x.text.length>240?x.text.slice(0,237).replace(/\s+\S*$/,'')+'…':x.text}));
 }
+
+function fallbackNoteLines(item, sourceText=''){
+  const desc=cleanArticleText(item.description||'');
+  const combined=cleanArticleText([sourceText, desc].filter(Boolean).join(' '));
+  let lines=makeNoteLines(combined,item.title);
+  if(lines.length) return lines;
+  const descSentences=sentenceSplit(desc).filter(x=>meaningfulSentence(x,item.title));
+  if(descSentences.length){
+    return descSentences.slice(0,2).map((text,i)=>({
+      label:i===0?'WHAT MATTERS':'MORE',
+      text:text.length>240?text.slice(0,237).replace(/\s+\S*$/,'')+'…':text
+    }));
+  }
+  const summary=makeExtractiveSummary(combined,item.title);
+  return summary ? [{label:'WHAT MATTERS',text:summary}] : [];
+}
+
 async function fetchReadableTextViaReader(url){
   // Jina Reader is a public readability fallback. It is especially useful for
   // SIDEARM athletics pages and Google News redirect URLs that return a shell
@@ -400,12 +417,13 @@ async function fetchArticleIntelligence(item){
     if(!isBoilerplateNewsText(feed,item.title) && feed.length>=130) sourceText=feed;
   }
 
-  const noteLines=makeNoteLines(sourceText,item.title);
-  const summary=noteLines.map(x=>x.text).join(' ');
+  const noteLines=fallbackNoteLines(item,sourceText);
+  const summary=(noteLines.length?noteLines.map(x=>x.text).join(' '):makeExtractiveSummary(sourceText||item.description||'',item.title)).trim();
   const quote=sourceText ? extractQuote(sourceText) : '';
-  const tags=inferTagsFromText((item.title||'')+' '+sourceText);
-  const hasNotes=noteLines.length>=2 && articleTextQuality(sourceText,item.title)>=45;
-  return {...item,summary,noteLines,quote,tags,hasNotes,notesSource:hasNotes?(readerText===sourceText?'reader':directText===sourceText?'article':'feed'):'none'};
+  const tags=inferTagsFromText((item.title||'')+' '+(sourceText||item.description||''));
+  const quality=Math.max(articleTextQuality(sourceText,item.title), articleTextQuality(item.description||'',item.title));
+  const hasNotes=noteLines.length>=1 && (quality>=20 || summary.length>=80);
+  return {...item,summary,noteLines,quote,tags,hasNotes,notesSource:hasNotes?(readerText===sourceText?'reader':directText===sourceText?'article':sourceText===cleanArticleText(item.description||'')?'feed':'mixed'):'none'};
 }
 async function mapLimit(items,limit,fn){
   const out=new Array(items.length); let next=0;
@@ -490,7 +508,7 @@ export default async function handler(req,res){
     // Enrich the 15 stories actually shown in the carousel. We read the page
     // itself where possible so READ NOTES contains substantive article notes.
     const enrichedTop=await mapLimit(uniqueBase.slice(0,15),5,fetchArticleIntelligence);
-    const unique=[...enrichedTop,...uniqueBase.slice(15).map(x=>{const t=cleanArticleText(x.description||'');const noteLines=isBoilerplateNewsText(t,x.title)?[]:makeNoteLines(t,x.title);return {...x,summary:noteLines.map(n=>n.text).join(' '),noteLines,tags:inferTagsFromText((x.title||'')+' '+t),hasNotes:noteLines.length>=2,notesSource:noteLines.length?'feed':'none'}})];
+    const unique=[...enrichedTop,...uniqueBase.slice(15).map(x=>{const t=cleanArticleText(x.description||'');const noteLines=isBoilerplateNewsText(t,x.title)?fallbackNoteLines(x,''):fallbackNoteLines(x,t);const summary=(noteLines.length?noteLines.map(n=>n.text).join(' '):makeExtractiveSummary(t,x.title)).trim();return {...x,summary,noteLines,tags:inferTagsFromText((x.title||'')+' '+t),hasNotes:noteLines.length>=1 || summary.length>=80,notesSource:noteLines.length?'feed':'none'}})];
 
     const games=[...parseGames(schedule26,team),...parseGames(schedule25,team)]
       .sort((a,b)=>new Date(b.date)-new Date(a.date))
