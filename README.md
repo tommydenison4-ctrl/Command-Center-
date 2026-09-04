@@ -10,6 +10,13 @@
 - Schedule rail now shows `NEWS + DEPTH` for opponents that have a loaded depth chart.
 - UAB news tagging now also recognizes Ryder Burton, Nate Rogers, Adrian Posse, Alex Mortensen and Todd Grantham.
 
+## News UI / notes refinement
+- Removed the visible story summary text from the news cards so the boxes stay tight.
+- Tightened desktop news-card height and clamped headlines so long titles do not sprawl.
+- Kept `READ NOTES` as the place where story intelligence expands.
+- Relaxed the note-building threshold so more stories populate notes from article text or the feed description when the publisher page is thin or blocked.
+- Official/media cards now stay compact while detail notes are more likely to be available after clicking.
+
 ## GitHub / Vercel
 Replace these files in the existing repo:
 - `index.html`
