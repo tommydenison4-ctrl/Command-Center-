@@ -14,7 +14,7 @@ const TEAMS = {
     searchName: 'UAB Blazers',
     espnSlug: 'uab',
     officialDomains: ['uabsports.com'],
-    officialArchive: 'https://uabsports.com/sports/football/archives?path=football',
+    officialArchive: 'https://uabsports.com/sports/football/archives',
     titleAliases: [/\buab\b/i,/\buab blazers?\b/i]
   },
   southeastern: {
