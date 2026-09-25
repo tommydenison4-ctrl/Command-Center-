@@ -1,4 +1,8 @@
 {
+  "functions": {
+    "api/home.js": { "includeFiles": "index.html" },
+    "api/fau-tells.js": { "includeFiles": ".tmp/**" }
+  },
   "rewrites": [
     { "source": "/", "destination": "/api/home" },
     { "source": "/FAU_Tells_Final.pdf", "destination": "/api/fau-tells" }
