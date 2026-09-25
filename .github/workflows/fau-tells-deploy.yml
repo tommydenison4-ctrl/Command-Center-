@@ -22,11 +22,33 @@ jobs:
           file FAU_Tells_Final.pdf
           test "$(head -c 5 FAU_Tells_Final.pdf)" = "%PDF-"
 
-      - name: Commit PDF
+      - name: Add Florida Atlantic report card to Command Center
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          if 'Florida Atlantic Offensive Tells' not in s:
+              marker = ' <div class="reportGameLabel">WEEK 3 - SOUTHEASTERN LOUISIANA</div>'
+              card = ''' <div class="reportGameLabel">WEEK 4 - FLORIDA ATLANTIC</div>
+           <a class="futureCard reportCard liveFuture" href="FAU_Tells_Final.pdf" target="_blank" rel="noopener">
+             <div class="futureHead"><div><div class="futureTag">OFFENSIVE TELLS</div><h3>Florida Atlantic Offensive Tells</h3></div><div class="planned">OPEN PDF ↗</div></div>
+             <p>Florida Atlantic 2026 offensive tendency report covering formation, motion, run/pass, play family and ball carrier/target indicators.</p>
+             <div class="futureViz"><svg viewBox="0 0 240 118"><path class="gridMini" d="M25 25H215M25 55H215M25 85H215M60 15V100M105 15V100M150 15V100M195 15V100"/><path class="maroonPath" d="M26 82 L60 66 L105 70 L150 45 L195 39"/><path class="goldPath" d="M26 69 L60 62 L105 48 L150 54 L195 28"/><circle class="node" cx="195" cy="28" r="5"/><text x="20" y="108" class="svgLabel">FAU OFFENSIVE TELLS</text></svg></div>
+             <div class="futureSteps"><span>FORMATION</span><span>MOTION + RUN/PASS</span><span>PLAY FAMILY + TARGETS</span></div>
+           </a>
+
+          '''
+              if marker not in s:
+                  raise SystemExit('Could not find reports insertion point')
+              p.write_text(s.replace(marker, card + marker, 1))
+          PY
+
+      - name: Commit PDF and Command Center update
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add FAU_Tells_Final.pdf
+          git add FAU_Tells_Final.pdf index.html
           git diff --cached --quiet && exit 0
-          git commit -m "Add Florida Atlantic offensive tells PDF"
+          git commit -m "Add Florida Atlantic Offensive Tells report"
           git push
