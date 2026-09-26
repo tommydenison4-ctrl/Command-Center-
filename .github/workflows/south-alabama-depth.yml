@@ -1,0 +1,77 @@
+name: Add South Alabama Depth Chart
+
+on:
+  push:
+    paths:
+      - '.github/workflows/south-alabama-depth.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install reportlab
+      - name: Build PDF and update Command Center
+        shell: bash
+        run: |
+          python - <<'PY'
+          from reportlab.lib import colors
+          from reportlab.lib.pagesizes import landscape, letter
+          from reportlab.pdfgen import canvas
+          from reportlab.platypus import Table, TableStyle, Paragraph
+          from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+          from pathlib import Path
+
+          W,H=landscape(letter)
+          M=colors.HexColor('#8A2432'); G=colors.HexColor('#EBA800'); B=colors.HexColor('#171717'); L=colors.HexColor('#F2F0ED'); D=colors.HexColor('#D7D1CA')
+          styles=getSampleStyleSheet(); cell=ParagraphStyle('c',parent=styles['BodyText'],fontName='Helvetica',fontSize=7.4,leading=9); cb=ParagraphStyle('b',parent=cell,fontName='Helvetica-Bold',textColor=colors.white)
+          def P(x,s=cell): return Paragraph(str(x).replace('&','&amp;'),s)
+          def page(c,title,sub,rows,quick,n):
+            c.setFillColor(M); c.rect(0,H-72,W,72,fill=1,stroke=0); c.setFillColor(colors.white); c.setFont('Helvetica-Bold',20); c.drawString(54,H-30,'ULM FOOTBALL'); c.setFillColor(G); c.setFont('Helvetica-Bold',8); c.drawString(55,H-45,'WEEK 5 MATCHUP - SOUTH ALABAMA'); c.setFillColor(colors.white); c.setFont('Helvetica-Bold',9); c.drawRightString(W-42,H-27,'OCTOBER 3, 2026'); c.setFont('Helvetica',7.5); c.drawRightString(W-42,H-42,'Hancock Whitney Stadium - Mobile, AL'); c.setFillColor(G); c.rect(0,H-75,W,3,fill=1,stroke=0)
+            y=H-98; c.setFillColor(M); c.setFont('Helvetica-Bold',16); c.drawString(42,y,title); c.setFillColor(G); c.setFont('Helvetica-Bold',8); c.drawString(42,y-14,sub)
+            data=[[P('POS',cb),P('1ST',cb),P('2ND',cb),P('3RD',cb),P('ADDITIONAL',cb)]]+[[P(r[0],cb)]+[P(x) for x in r[1:]] for r in rows]
+            t=Table(data,colWidths=[52,180,180,180,180]); st=[('BACKGROUND',(0,0),(-1,0),B),('BACKGROUND',(0,1),(0,-1),M),('TEXTCOLOR',(0,0),(-1,0),colors.white),('TEXTCOLOR',(0,1),(0,-1),colors.white),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('GRID',(0,0),(-1,-1),.45,D),('LEFTPADDING',(0,0),(-1,-1),6),('RIGHTPADDING',(0,0),(-1,-1),5),('TOPPADDING',(0,0),(-1,-1),5),('BOTTOMPADDING',(0,0),(-1,-1),5)]
+            for i in range(1,len(data)):
+              if i%2==0: st.append(('BACKGROUND',(1,i),(-1,i),L))
+            t.setStyle(TableStyle(st)); tw,th=t.wrapOn(c,W-80,H); t.drawOn(c,42,y-30-th)
+            qy=y-42-th; c.setStrokeColor(G); c.rect(72,qy-45,W-144,38,fill=0,stroke=1); c.setFillColor(M); c.setFont('Helvetica-Bold',8); c.drawString(82,qy-22,'QUICK'); c.drawString(82,qy-32,'REFERENCE'); c.setFillColor(B); c.setFont('Helvetica',7.2); tx=c.beginText(150,qy-20); tx.setLeading(10)
+            for line in quick: tx.textLine(line)
+            c.drawText(tx); c.setFillColor(colors.HexColor('#666666')); c.setFont('Helvetica',6.2); c.drawString(42,qy-58,'Depth chart reflects the linked OurLads posting and is not a ULM independently verified game-week two-deep.')
+            c.setFillColor(B); c.rect(0,0,W,18,fill=1,stroke=0); c.setFillColor(colors.HexColor('#C8C8C8')); c.setFont('Helvetica',6); c.drawString(26,6,'Opponent depth chart source: OurLads.com - Updated 09/18/2026 9:26 PM ET'); c.drawRightString(W-26,6,f'ULM FOOTBALL - INTERNAL MATCHUP USE - PAGE {n}'); c.showPage()
+
+          off=[['WR-X','#6 Micah Woods (RS SR/TR)','#11 Trae Stevenson (RS FR)','#23 Dominic White (FR)',''],['WR-Z','#12 Brendan Jenkins (SR/TR)','#8 Noah Toster (RS JR/TR)','#13 Jarvis Washington Jr. (FR)',''],['WR-SL','#1 Anthony Eager (RS JR)','#2 Jeremiah Jones-Thomas (SO)','#27 Tylen Campbell (RS SR/TR)',''],['LT','#68 Reese Osei-Wusu (RS JR/TR)','#71 Jaylen Booker (RS SO/TR)','#70 Elliott Chaney (FR)',''],['LG','#64 Jamal Siler (RS SO/TR)','#74 Aydan Newell (FR)','',''],['C','#69 Kenton Jerido (RS SR)','#67 Artem Korchagin Jr. (FR)','',''],['RG','#57 Shalik Hubbard (RS SR/TR)','#66 Devin White (RS FR)','',''],['RT','#72 Ethan Hubbard (RS JR/TR)','#71 Jaylen Booker (RS SO/TR)','',''],['TE','#9 Rod Gibbs (SR/TR)','#83 Everett Hunter (RS SR/TR)','#82 Julius Mathis (FR)',''],['QB','#4 Bishop Davenport (RS SR/TR)','#7 Jared Hollins (RS SO)','',''],['RB','#0 PJ Martin (RS JR)','#3 Keenan Phillips (JR/TR)',"#21 Trae'von Dunbar (RS SO/TR)",'']]
+          de=[['DE','#18 Mase Lewis (RS SR/TR)',"#90 E'Mauri Smiley (SO)",'#85 Andrew Washburn (RS SR/TR)',''],['NT','#56 Stephen Johnson (RS JR/TR)','#49 Tre Brown (RS JR/TR)','',''],['DT','#41 Tyler Carter (RS SO)','#11 Andrew Hines (SO/TR)','',''],['EDGE',"#25 Tre'Mon Henry (RS JR/TR)",'#17 Christian Ross (RS SR/TR)','#10 William Felton IV (RS SO)',''],['MAC','#6 Kaydon Degraffenreid (JR/TR)','#0 Parker Shattuck (JR)','#16 Seidrion Langston (SR/TR)',''],['ROVER','#48 Jordan Williams (RS JR)','#26 Xavious Anderson Jr. (FR)','',''],['LCB','#12 Jaylen Moson (RS JR/TR)','#3 Tre Webb III (RS JR/TR)','',''],['SS','#14 Cole Blaylock (RS JR)','#32 Camen Upshaw (FR)','',''],['FS','#8 Dallas Young (RS JR/TR)','#1 DJ Moore (RS SR/TR)','#13 Kam Robinson (SR/TR)',''],['RCB','#2 Jayvon Henderson (RS SR/TR)','#34 Bradley Thomas (RS SR/TR)','',''],['NB','#24 Damyrion Darby (JR)','#21 Deon Callins (FR)','','']]
+          sp=[['PT','#40 Aleksi Pulkkinen (SR)','#38 Peyton Argent (RS JR/TR)','',''],['PK','#35 Davis Little (RS SO)','#37 Dylan Freebury (RS FR/TR)','',''],['KO','#35 Davis Little (RS SO)','#38 Peyton Argent (RS JR/TR)','',''],['LS','#44 Baxter Turner (RS JR)','#47 Grant Rountree (RS JR/TR)','',''],['H','#40 Aleksi Pulkkinen (SR)','#38 Peyton Argent (RS JR/TR)','',''],['PR','#2 Jeremiah Jones-Thomas (SO)','#2 Jayvon Henderson (RS SR/TR)','',''],['KR','#0 PJ Martin (RS JR)','#3 Keenan Phillips (JR/TR)','','']]
+          pdf='ULM_Week_5_South_Alabama_Depth_Chart.pdf'; c=canvas.Canvas(pdf,pagesize=landscape(letter)); page(c,'SOUTH ALABAMA OFFENSE','MULTIPLE SPREAD - PROJECTED DEPTH',off,['QB1 is #4 Bishop Davenport. #0 PJ Martin is RB1.','Projected starting offensive line: Osei-Wusu, Siler, Jerido, Shalik Hubbard and Ethan Hubbard.'],1); page(c,'SOUTH ALABAMA DEFENSE','MULTIPLE 4-2-5 - PROJECTED DEPTH',de,['Front: Lewis, Johnson, Carter and Henry.','MAC1 is #6 Kaydon Degraffenreid; ROVER1 is #48 Jordan Williams.'],2); page(c,'SOUTH ALABAMA SPECIAL TEAMS','PROJECTED DEPTH',sp,['PT/H: #40 Aleksi Pulkkinen. PK/KO: #35 Davis Little.','Primary returners: #2 Jeremiah Jones-Thomas at PR and #0 PJ Martin at KR.'],3); c.save()
+
+          p=Path('index.html'); s=p.read_text()
+          if '  southalabama:{' not in s:
+            block="""  southalabama:{
+            source:'Ourlads.com',updated:'09/18/2026 9:26 PM ET',sourceUrl:'https://www.ourlads.com/ncaa-football-depth-charts/depth-chart/south-alabama/92798',pdf:'ULM_Week_5_South_Alabama_Depth_Chart.pdf',
+            offense:{title:'Multiple Spread',quick:[['QB1','#4 Bishop Davenport'],['RB1','#0 PJ Martin']],columns:['POS','1ST','2ND','3RD','ADDITIONAL'],rows:[
+              ['WR-X','6 Micah Woods (RS SR/TR)','11 Trae Stevenson (RS FR)','23 Dominic White (FR)',''],['WR-Z','12 Brendan Jenkins (SR/TR)','8 Noah Toster (RS JR/TR)','13 Jarvis Washington Jr. (FR)',''],['WR-SL','1 Anthony Eager (RS JR)','2 Jeremiah Jones-Thomas (SO)','27 Tylen Campbell (RS SR/TR)',''],['LT','68 Reese Osei-Wusu (RS JR/TR)','71 Jaylen Booker (RS SO/TR)','70 Elliott Chaney (FR)',''],['LG','64 Jamal Siler (RS SO/TR)','74 Aydan Newell (FR)','',''],['C','69 Kenton Jerido (RS SR)','67 Artem Korchagin Jr. (FR)','',''],['RG','57 Shalik Hubbard (RS SR/TR)','66 Devin White (RS FR)','',''],['RT','72 Ethan Hubbard (RS JR/TR)','71 Jaylen Booker (RS SO/TR)','',''],['TE','9 Rod Gibbs (SR/TR)','83 Everett Hunter (RS SR/TR)','82 Julius Mathis (FR)',''],['QB','4 Bishop Davenport (RS SR/TR)','7 Jared Hollins (RS SO)','',''],['RB','0 PJ Martin (RS JR)','3 Keenan Phillips (JR/TR)',"21 Trae'von Dunbar (RS SO/TR)",'']]},
+            defense:{title:'Multiple 4-2-5',quick:[['MAC1','#6 Kaydon Degraffenreid'],['ROVER1','#48 Jordan Williams']],columns:['POS','1ST','2ND','3RD','ADDITIONAL'],rows:[
+              ['DE','18 Mase Lewis (RS SR/TR)',"90 E'Mauri Smiley (SO)",'85 Andrew Washburn (RS SR/TR)',''],['NT','56 Stephen Johnson (RS JR/TR)','49 Tre Brown (RS JR/TR)','',''],['DT','41 Tyler Carter (RS SO)','11 Andrew Hines (SO/TR)','',''],['EDGE',"25 Tre'Mon Henry (RS JR/TR)",'17 Christian Ross (RS SR/TR)','10 William Felton IV (RS SO)',''],['MAC','6 Kaydon Degraffenreid (JR/TR)','0 Parker Shattuck (JR)','16 Seidrion Langston (SR/TR)',''],['ROVER','48 Jordan Williams (RS JR)','26 Xavious Anderson Jr. (FR)','',''],['LCB','12 Jaylen Moson (RS JR/TR)','3 Tre Webb III (RS JR/TR)','',''],['SS','14 Cole Blaylock (RS JR)','32 Camen Upshaw (FR)','',''],['FS','8 Dallas Young (RS JR/TR)','1 DJ Moore (RS SR/TR)','13 Kam Robinson (SR/TR)',''],['RCB','2 Jayvon Henderson (RS SR/TR)','34 Bradley Thomas (RS SR/TR)','',''],['NB','24 Damyrion Darby (JR)','21 Deon Callins (FR)','','']]},
+            special:{title:'Special Teams',quick:[['PT / H','#40 Aleksi Pulkkinen'],['PK / KO','#35 Davis Little'],['PR1 / KR1','#2 Jeremiah Jones-Thomas / #0 PJ Martin']],columns:['POS','1ST','2ND','3RD','ADDITIONAL'],rows:[
+              ['PT','40 Aleksi Pulkkinen (SR)','38 Peyton Argent (RS JR/TR)','',''],['PK','35 Davis Little (RS SO)','37 Dylan Freebury (RS FR/TR)','',''],['KO','35 Davis Little (RS SO)','38 Peyton Argent (RS JR/TR)','',''],['LS','44 Baxter Turner (RS JR)','47 Grant Rountree (RS JR/TR)','',''],['H','40 Aleksi Pulkkinen (SR)','38 Peyton Argent (RS JR/TR)','',''],['PR','2 Jeremiah Jones-Thomas (SO)','2 Jayvon Henderson (RS SR/TR)','',''],['KR','0 PJ Martin (RS JR)','3 Keenan Phillips (JR/TR)','','']]}
+          },
+          """
+            s=s.replace('  fau:{\n',block+'  fau:{\n',1); p.write_text(s)
+          PY
+      - name: Commit files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html ULM_Week_5_South_Alabama_Depth_Chart.pdf
+          git diff --cached --quiet && exit 0
+          git commit -m "Add South Alabama depth chart and Command Center data"
+          git push
