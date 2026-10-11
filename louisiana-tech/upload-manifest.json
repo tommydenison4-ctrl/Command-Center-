@@ -1,0 +1,12 @@
+{
+  "team": "Louisiana Tech",
+  "season": 2026,
+  "week": 7,
+  "storageBase": "",
+  "files": {},
+  "teamField": "",
+  "teamCodes": [
+    "LATU"
+  ],
+  "rosterFile": "roster.json"
+}
